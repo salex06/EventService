@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
+using MS_Lab.repositories;
 using MS_Lab.dto.ticket;
+using MS_Lab.entities;
 
 namespace MS_Lab.services.tickets
 {
@@ -28,7 +30,8 @@ namespace MS_Lab.services.tickets
         public async Task<TicketDTO> GetTicketByIdAsync(int id)
         {
             var ticket = await _ticketRepository.GetByIdAsync(id);
-            if (ticket == null) {
+            if (ticket == null)
+            {
                 throw NotFoundException($"Билет с id={id} не найден");
             }
 
@@ -41,7 +44,7 @@ namespace MS_Lab.services.tickets
             ValidateEvent(eventId);
 
             Ticket ticket = _mapper.Map<Ticket>(createTicketDTO);
-            var savedTicket = await _ticketRepository.SaveAsync(ticket);
+            var savedTicket = await _ticketRepository.CreateAsync(ticket);
 
             return _mapper.Map<TicketDTO>(savedTicket);
         }
@@ -49,14 +52,15 @@ namespace MS_Lab.services.tickets
         public async Task<TicketDTO> UpdateTicketAsync(int ticketId, UpdateTicketDTO updateTicketDTO)
         {
             var ticket = await _ticketRepository.GetByIdAsync(ticketId);
-            if (ticket == null) {
+            if (ticket == null)
+            {
                 throw NotFoundException($"Билет с id={ticketId} не найден");
             }
 
             int updatedEventId = updateTicketDTO.EventId;
             ValidateEvent(updatedEventId);
 
-            var ticket = _mapper.Map<Ticket>(updateTicketDTO);
+            ticket = _mapper.Map<Ticket>(updateTicketDTO);
             ticket.Id = ticketId;
 
             var updatedTicket = await _ticketRepository.UpdateAsync(ticket);
@@ -65,15 +69,17 @@ namespace MS_Lab.services.tickets
 
         public async Task DeleteTicketAsync(int id)
         {
-            if (!await _ticketRepository.ExistsByIdAsync(id)) {
+            if (!await _ticketRepository.ExistsByIdAsync(id))
+            {
                 throw NotFoundException($"Билет с id={id} не найден");
             }
 
             await _ticketRepository.DeleteAsync(id);
         }
 
-        private async void ValidateEvent(int eventId) {
-            var foundEvent = await _eventRepository.GetEventByIdAsync(eventId);
+        private async void ValidateEvent(int eventId)
+        {
+            var foundEvent = await _eventRepository.GetByIdAsync(eventId);
             if (foundEvent == null)
             {
                 throw NotFoundException($"Событие с id={eventId} не найдено");

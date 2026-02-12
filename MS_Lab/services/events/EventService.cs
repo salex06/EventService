@@ -1,4 +1,6 @@
 ﻿using MS_Lab.dto.events;
+using MS_Lab.entities;
+using MS_Lab.repositories;
 
 namespace MS_Lab.services.events
 {
