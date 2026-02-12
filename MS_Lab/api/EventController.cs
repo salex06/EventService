@@ -18,35 +18,35 @@ namespace MS_Lab.api
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EventDTO>>> GetAll() {
-            var events = await _eventService.GetAllEvents();
+            var events = await _eventService.GetAllEventsAsync();
 
             return Ok(events);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<EventDTO>> GetById(int id) {
-            var foundEvent = await _eventService.GetEventById(id);
+            var foundEvent = await _eventService.GetEventByIdAsync(id);
 
             return Ok(foundEvent);
         }
 
         [HttpPost]
         public async Task<ActionResult<EventDTO>> Create(CreateEventDTO eventInfo) {
-            var createdEvent = await _eventService.CreateEvent(eventInfo);
+            var createdEvent = await _eventService.CreateEventAsync(eventInfo);
 
             return CreatedAtAction(nameof(GetById), new { id = createdEvent.Id}, createdEvent);
         }
 
         [HttpPatch]
         public async Task<ActionResult<EventDTO>> Update(UpdateEventDTO eventInfo) {
-            var updatedEvent = await _eventService.UpdateEvent(eventInfo);
+            var updatedEvent = await _eventService.UpdateEventAsync(eventInfo);
 
             return Ok(updatedEvent);
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id) {
-            await _eventService.DeleteEvent(id);
+            await _eventService.DeleteEventAsync(id);
 
             return Ok();
         }
