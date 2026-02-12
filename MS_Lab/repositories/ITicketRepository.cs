@@ -11,6 +11,6 @@ namespace MS_Lab.repositories
         Task<Ticket> UpdateAsync(Ticket ticket);
         Task DeleteAsync(int id);
         Task<bool> ExistsByIdAsync(int id);
-        Task<int> GetSoldCountByEventIdAsync(int eventId);
+        Task<int> GetSoldTicketNumberByEventIdAsync(int eventId);
     }
 }

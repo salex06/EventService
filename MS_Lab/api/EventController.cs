@@ -37,10 +37,10 @@ namespace MS_Lab.api
             return CreatedAtAction(nameof(GetById), new { id = createdEvent.Id}, createdEvent);
         }
 
-        [HttpPatch]
-        public async Task<ActionResult<EventDTO>> Update(UpdateEventDTO eventInfo) {
-            var updatedEvent = await _eventService.UpdateEventAsync(eventInfo);
-
+        [HttpPatch("{id}")]
+        public async Task<ActionResult<EventDTO>> Update(int id, UpdateEventDTO eventInfo)
+        {
+            var updatedEvent = await _eventService.UpdateEventAsync(id, eventInfo);
             return Ok(updatedEvent);
         }
 

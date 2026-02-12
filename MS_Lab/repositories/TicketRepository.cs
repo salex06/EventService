@@ -49,8 +49,10 @@ namespace MS_Lab.repositories
         public async Task<bool> ExistsByIdAsync(int id) =>
             await _context.Tickets.AnyAsync(t => t.Id == id);
 
-        public async Task<int> GetSoldCountByEventIdAsync(int eventId) =>
-            await _context.Tickets.CountAsync(t => t.EventId == eventId);
+        public async Task<int> GetSoldTicketNumberByEventIdAsync(int eventId)
+        {
+            return await _context.Tickets.CountAsync(t => t.EventId == eventId);
+        }
     }
 
 }

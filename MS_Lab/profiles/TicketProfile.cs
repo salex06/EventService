@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MS_Lab.dto.ticket;
+using MS_Lab.entities;
 
 namespace MS_Lab.profiles
 {
