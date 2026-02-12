@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
 using MS_Lab.repositories;
 using MS_Lab.dto.ticket;
+using MS_Lab.exception;
 using MS_Lab.entities;
 
 namespace MS_Lab.services.tickets
@@ -82,13 +84,13 @@ namespace MS_Lab.services.tickets
             var foundEvent = await _eventRepository.GetByIdAsync(eventId);
             if (foundEvent == null)
             {
-                throw NotFoundException($"Событие с id={eventId} не найдено");
+                throw new NotFoundException($"Событие с id={eventId} не найдено");
             }
 
             int soldTicketNumber = await _ticketRepository.GetSoldTicketNumberByEventIdAsync(eventId);
             if (soldTicketNumber == foundEvent.TicketCount)
             {
-                throw BadRequestException("Все билеты проданы");
+                throw new BadRequestException("Все билеты проданы");
             }
         }
     }
