@@ -12,6 +12,11 @@ builder.Services.AddAutoMapper(cfg => {
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ApiExceptionFilter>();
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

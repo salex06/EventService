@@ -1,4 +1,6 @@
-﻿using MS_Lab.dto.events;
+﻿using AutoMapper;
+using MS_Lab.dto.events;
+using MS_Lab.exception;
 
 namespace MS_Lab.services.events
 {
@@ -24,7 +26,7 @@ namespace MS_Lab.services.events
         {
             var foundEvent = await _eventRepository.GetByIdAsync(id);
             if (foundEvent == null) {
-                throw NotFoundException($"Событие с id={id} не найдено");
+                throw new NotFoundException($"Событие с id={id} не найдено");
             }
 
             return _mapper.Map<EventDTO>(foundEvent);
@@ -43,7 +45,7 @@ namespace MS_Lab.services.events
         {
             var foundEvent = await _eventRepository.GetByIdAsync(eventId);
             if (foundEvent == null) {
-                throw NotFoundException($"Событие с id={eventId} не найдено");
+                throw new NotFoundException($"Событие с id={eventId} не найдено");
             }
 
             var eventToUpdate = _mapper.Map<Event>(updateEventDTO);
@@ -58,7 +60,7 @@ namespace MS_Lab.services.events
         {
             if (!await _eventRepository.ExistsByIdAsync(id))
             {
-                throw NotFoundException($"Событие с id={id} не найдено");
+                throw new NotFoundException($"Событие с id={id} не найдено");
             }
 
             await _eventRepository.DeleteAsync(id);

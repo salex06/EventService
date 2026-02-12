@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Logging;
 using MS_Lab.dto.ticket;
+using MS_Lab.exception;
 
 namespace MS_Lab.services.tickets
 {
@@ -30,7 +31,7 @@ namespace MS_Lab.services.tickets
         {
             var ticket = await _ticketRepository.GetByIdAsync(id);
             if (ticket == null) {
-                throw NotFoundException($"Билет с id={id} не найден");
+                throw new NotFoundException($"Билет с id={id} не найден");
             }
 
             return _mapper.Map<TicketDTO>(ticket);
@@ -51,7 +52,7 @@ namespace MS_Lab.services.tickets
         {
             var ticket = await _ticketRepository.GetByIdAsync(ticketId);
             if (ticket == null) {
-                throw NotFoundException($"Билет с id={ticketId} не найден");
+                throw new NotFoundException($"Билет с id={ticketId} не найден");
             }
 
             int updatedEventId = updateTicketDTO.EventId;
@@ -67,7 +68,7 @@ namespace MS_Lab.services.tickets
         public async Task DeleteTicketAsync(int id)
         {
             if (!await _ticketRepository.ExistsByIdAsync(id)) {
-                throw NotFoundException($"Билет с id={id} не найден");
+                throw new NotFoundException($"Билет с id={id} не найден");
             }
 
             await _ticketRepository.DeleteAsync(id);
@@ -77,13 +78,13 @@ namespace MS_Lab.services.tickets
             var foundEvent = await _eventRepository.GetEventByIdAsync(eventId);
             if (foundEvent == null)
             {
-                throw NotFoundException($"Событие с id={eventId} не найдено");
+                throw new NotFoundException($"Событие с id={eventId} не найдено");
             }
 
             int soldTicketNumber = await _ticketRepository.GetSoldTicketNumberByEventIdAsync(eventId);
             if (soldTicketNumber == foundEvent.TicketCount)
             {
-                throw BadRequestException("Все билеты проданы");
+                throw new BadRequestException("Все билеты проданы");
             }
         }
     }
