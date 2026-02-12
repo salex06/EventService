@@ -18,7 +18,7 @@ namespace MS_Lab.api
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TicketDTO>>> GetAll() {
-            var users = await _ticketService.GetAllTickets();
+            var users = await _ticketService.GetAllTicketsAsync();
 
             return Ok(users);
         }
@@ -26,7 +26,7 @@ namespace MS_Lab.api
         [HttpGet("{id}")]
 
         public async Task<ActionResult<TicketDTO>> GetById(int id) {
-            var ticket = await _ticketService.GetTicketById(id);
+            var ticket = await _ticketService.GetTicketByIdAsync(id);
             if (ticket == null) {
                 return NotFound();
             }
@@ -36,13 +36,13 @@ namespace MS_Lab.api
 
         [HttpPost]
         public async Task<ActionResult<TicketDTO>> Create(CreateTicketDTO ticketInfo) {
-            var ticket = await _ticketService.CreateTicket(ticketInfo);
+            var ticket = await _ticketService.CreateTicketAsync(ticketInfo);
             return CreatedAtAction(nameof(GetById), new { id = ticket.Id }, ticket);
         }
 
-        [HttpPatch]
-        public async Task<ActionResult<TicketDTO>> Update(UpdateTicketDTO ticketInfo) {
-            var ticket = await _ticketService.UpdateTicket(ticketInfo);
+        [HttpPatch("{id}")]
+        public async Task<ActionResult<TicketDTO>> Update(int id, UpdateTicketDTO ticketInfo) {
+            var ticket = await _ticketService.UpdateTicketAsync(id, ticketInfo);
 
             return Ok(ticket);
         }
@@ -50,7 +50,7 @@ namespace MS_Lab.api
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id) {
-            await _ticketService.DeleteTicket(id);
+            await _ticketService.DeleteTicketAsync(id);
 
             return Ok();
         }
