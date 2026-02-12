@@ -2,9 +2,9 @@
 {
     public record CreateTicketDTO
     {
-        int EventId;
+        public int EventId;
 
-        TicketOwnerDTO TicketOwner;
+        public TicketOwnerDTO TicketOwner;
 
         public CreateTicketDTO(int eventId, TicketOwnerDTO ticketOwner)
         {

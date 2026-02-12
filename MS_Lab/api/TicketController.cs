@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MS_Lab.dto.ticket;
+using MS_Lab.services.tickets;
 
 namespace MS_Lab.api
 {
@@ -7,16 +9,16 @@ namespace MS_Lab.api
     public class TicketController : Controller
     {
 
-        private readonly TicketService _ticketService;
+        private readonly ITicketService _ticketService;
 
-        public TicketController(TicketService ticketService)
+        public TicketController(ITicketService ticketService)
         {
             _ticketService = ticketService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TicketDTO>>> GetAll() {
-            var users = await _ticketService.getAllTickets();
+            var users = await _ticketService.GetAllTickets();
 
             return Ok(users);
         }
@@ -24,7 +26,7 @@ namespace MS_Lab.api
         [HttpGet("{id}")]
 
         public async Task<ActionResult<TicketDTO>> GetById(int id) {
-            var ticket = await _ticketService.getTicketById();
+            var ticket = await _ticketService.GetTicketById(id);
             if (ticket == null) {
                 return NotFound();
             }
@@ -34,21 +36,21 @@ namespace MS_Lab.api
 
         [HttpPost]
         public async Task<ActionResult<TicketDTO>> Create(CreateTicketDTO ticketInfo) {
-            var ticket = await _ticketService.createTicket(ticketInfo);
-            return Created(ticket);
+            var ticket = await _ticketService.CreateTicket(ticketInfo);
+            return CreatedAtAction(nameof(GetById), new { id = ticket.Id }, ticket);
         }
 
         [HttpPatch]
         public async Task<ActionResult<TicketDTO>> Update(UpdateTicketDTO ticketInfo) {
-            var ticket = await _ticketService.updateTicket(ticketInfo);
+            var ticket = await _ticketService.UpdateTicket(ticketInfo);
 
             return Ok(ticket);
         }
 
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<DeleteTicketResultDTO>> Delete() {
-            await _ticketService.deleteTicket();
+        public async Task<ActionResult> Delete(int id) {
+            await _ticketService.DeleteTicket(id);
 
             return Ok();
         }

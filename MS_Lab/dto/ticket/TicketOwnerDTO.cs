@@ -2,12 +2,12 @@
 {
     public record TicketOwnerDTO
     {
-        int Id;
-        string Name;
-        string Surname;
+        public int Id;
+        public string Name;
+        public string Surname;
 
-        string Phone;
-        string Email;
+        public string Phone;
+        public string Email;
 
         public TicketOwnerDTO(int id, string name, string surname, string phone, string email)
         {

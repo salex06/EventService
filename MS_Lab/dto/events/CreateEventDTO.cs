@@ -4,16 +4,16 @@ namespace MS_Lab.dto.events
 {
     public record CreateEventDTO
     {
-        string Name;
-        string Description;
-        string Place;
-        EventType EventType;
+        public string Name;
+        public string Description;
+        public string Place;
+        public EventType EventType;
+         
+        public DateTime StartTimeUTC;
+        public DateTime EndTimeUTC;
 
-        DateTime StartTimeUTC;
-        DateTime EndTimeUTC;
-
-        int TicketCount;
-        int Price;
+        public int TicketCount;
+        public int Price;
 
         public CreateEventDTO(string name, string description, string place, 
             EventType eventType, DateTime startTimeUTC, DateTime endTimeUTC, 

@@ -1,15 +1,13 @@
 ﻿namespace MS_Lab.dto.ticket
 {
-    public record TicketDTO
+    public record UpdateTicketDTO
     {
-        public int Id;
         public int EventId;
 
         public TicketOwnerDTO TicketOwner;
 
-        public TicketDTO(int id, int eventId, TicketOwnerDTO ticketOwner)
+        public UpdateTicketDTO(int eventId, TicketOwnerDTO ticketOwner)
         {
-            Id = id;
             EventId = eventId;
             TicketOwner = ticketOwner;
         }
