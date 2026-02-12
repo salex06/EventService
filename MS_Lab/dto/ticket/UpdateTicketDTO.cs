@@ -2,14 +2,7 @@
 {
     public record UpdateTicketDTO
     {
-        public int EventId;
-
-        public TicketOwnerDTO TicketOwner;
-
-        public UpdateTicketDTO(int eventId, TicketOwnerDTO ticketOwner)
-        {
-            EventId = eventId;
-            TicketOwner = ticketOwner;
-        }
+        public int EventId { get; init; }
+        public TicketOwnerDTO? TicketOwner { get; init; }
     }
 }

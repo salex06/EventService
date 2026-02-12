@@ -2,20 +2,10 @@
 {
     public record TicketOwnerDTO
     {
-        public int Id;
-        public string Name;
-        public string Surname;
-
-        public string Phone;
-        public string Email;
-
-        public TicketOwnerDTO(int id, string name, string surname, string phone, string email)
-        {
-            Id = id;
-            Name = name;
-            Surname = surname;
-            Phone = phone;
-            Email = email;
-        }
+        public int Id { get; init; }
+        public string Name { get; init; } = string.Empty;
+        public string Surname { get; init; } = string.Empty;
+        public string? Phone { get; init; }
+        public string Email { get; init; } = string.Empty;
     }
 }
