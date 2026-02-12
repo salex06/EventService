@@ -43,7 +43,7 @@ namespace MS_Lab.services.tickets
         public async Task<TicketDTO> CreateTicketAsync(CreateTicketDTO createTicketDTO)
         {
             int eventId = createTicketDTO.EventId;
-            ValidateEvent(eventId);
+            await ValidateEventAsync(eventId);
 
             Ticket ticket = _mapper.Map<Ticket>(createTicketDTO);
             var savedTicket = await _ticketRepository.CreateAsync(ticket);
@@ -53,20 +53,15 @@ namespace MS_Lab.services.tickets
 
         public async Task<TicketDTO> UpdateTicketAsync(int ticketId, UpdateTicketDTO updateTicketDTO)
         {
-            var ticket = await _ticketRepository.GetByIdAsync(ticketId);
-            if (ticket == null)
-            {
+            var existingTicket = await _ticketRepository.GetByIdAsync(ticketId);
+            if (existingTicket == null)
                 throw new NotFoundException($"Билет с id={ticketId} не найден");
-            }
 
-            int updatedEventId = updateTicketDTO.EventId;
-            ValidateEvent(updatedEventId);
+            await ValidateEventAsync(updateTicketDTO.EventId);
 
-            ticket = _mapper.Map<Ticket>(updateTicketDTO);
-            ticket.Id = ticketId;
-
-            var updatedTicket = await _ticketRepository.UpdateAsync(ticket);
-            return _mapper.Map<TicketDTO>(updatedTicket);
+            _mapper.Map(updateTicketDTO, existingTicket);
+            var updated = await _ticketRepository.UpdateAsync(existingTicket);
+            return _mapper.Map<TicketDTO>(updated);
         }
 
         public async Task DeleteTicketAsync(int id)
@@ -79,19 +74,15 @@ namespace MS_Lab.services.tickets
             await _ticketRepository.DeleteAsync(id);
         }
 
-        private async void ValidateEvent(int eventId)
+        private async Task ValidateEventAsync(int eventId)
         {
             var foundEvent = await _eventRepository.GetByIdAsync(eventId);
             if (foundEvent == null)
-            {
                 throw new NotFoundException($"Событие с id={eventId} не найдено");
-            }
 
-            int soldTicketNumber = await _ticketRepository.GetSoldTicketNumberByEventIdAsync(eventId);
+            var soldTicketNumber = await _ticketRepository.GetSoldTicketNumberByEventIdAsync(eventId);
             if (soldTicketNumber == foundEvent.TicketCount)
-            {
                 throw new BadRequestException("Все билеты проданы");
-            }
         }
     }
 }

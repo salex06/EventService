@@ -5,13 +5,16 @@ using MS_Lab.entities;
 
 namespace MS_Lab.profiles
 {
-    public class EventProfile : Profile 
+    public class EventProfile : Profile
     {
-        public EventProfile() {
+        public EventProfile()
+        {
             CreateMap<EventDTO, Event>();
             CreateMap<Event, EventDTO>();
 
-            CreateMap<Event, UpdateEventDTO>();
+            CreateMap<UpdateEventDTO, Event>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
             CreateMap<UpdateEventDTO, Event>();
 
             CreateMap<Event, CreateEventDTO>();

@@ -27,7 +27,8 @@ namespace MS_Lab.services.events
         public async Task<EventDTO> GetEventByIdAsync(int id)
         {
             var foundEvent = await _eventRepository.GetByIdAsync(id);
-            if (foundEvent == null) {
+            if (foundEvent == null)
+            {
                 throw new NotFoundException($"Событие с id={id} не найдено");
             }
 
@@ -45,16 +46,13 @@ namespace MS_Lab.services.events
 
         public async Task<EventDTO> UpdateEventAsync(int eventId, UpdateEventDTO updateEventDTO)
         {
-            var foundEvent = await _eventRepository.GetByIdAsync(eventId);
-            if (foundEvent == null) {
+            var existingEvent = await _eventRepository.GetByIdAsync(eventId);
+            if (existingEvent == null)
                 throw new NotFoundException($"Событие с id={eventId} не найдено");
-            }
 
-            var eventToUpdate = _mapper.Map<Event>(updateEventDTO);
-            eventToUpdate.Id = eventId;
+            _mapper.Map(updateEventDTO, existingEvent);
 
-            var updatedEvent = await _eventRepository.UpdateAsync(eventToUpdate);
-
+            var updatedEvent = await _eventRepository.UpdateAsync(existingEvent);
             return _mapper.Map<EventDTO>(updatedEvent);
         }
 

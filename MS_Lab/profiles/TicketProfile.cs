@@ -8,6 +8,9 @@ namespace MS_Lab.profiles
     {
         public TicketProfile()
         {
+            CreateMap<UpdateTicketDTO, Ticket>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
             CreateMap<TicketDTO, Ticket>();
             CreateMap<Ticket, TicketDTO>();
 

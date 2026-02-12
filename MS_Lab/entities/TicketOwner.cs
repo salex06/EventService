@@ -32,7 +32,7 @@ namespace MS_Lab.entities
         [Column("email")]
         public string Email { get; set; } = string.Empty;
 
-        public Ticket Ticket { get; set; } = null!;
+        public Ticket? Ticket { get; set; }
     }
 
 }
