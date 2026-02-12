@@ -43,7 +43,7 @@ namespace MS_Lab.services.events
         {
             var foundEvent = await _eventRepository.GetByIdAsync(eventId);
             if (foundEvent == null) {
-                throw NotFoundException($"Событие с id={id} не найдено");
+                throw NotFoundException($"Событие с id={eventId} не найдено");
             }
 
             var eventToUpdate = _mapper.Map<Event>(updateEventDTO);
