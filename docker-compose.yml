@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:17-alpine
     container_name: ms_lab_db
     environment:
       POSTGRES_DB: ms_lab_db
@@ -11,52 +11,29 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
+      test: pg_isready -U postgres -d ms_lab_db
+      interval: 15s
+      timeout: 15s
       retries: 5
     restart: unless-stopped
 
-  adminer:
-    image: adminer
-    container_name: ms_lab_adminer
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-    restart: unless-stopped
 
   liquibase:
-    image: liquibase/liquibase:4.25
-    container_name: ms_lab_liquibase
+    container_name: ms_lab_migrations
+    image: liquibase/liquibase:4.29
+    command:
+        - --searchPath=/changesets
+        - --changelog-file=master.xml
+        - --driver=org.postgresql.Driver
+        - --url=jdbc:postgresql://postgres:5432/ms_lab_db
+        - --username=postgres
+        - --password=postgres
+        - update 
+    volumes:
+        - ./migrations:/changesets
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
-      - ./liquibase/changelog:/liquibase/changelog
-    environment:
-      - LIQUIBASE_COMMAND_USERNAME=postgres
-      - LIQUIBASE_COMMAND_PASSWORD=postgres
-      - LIQUIBASE_COMMAND_URL=jdbc:postgresql://postgres:5432/ms_lab_db
-      - LIQUIBASE_COMMAND_CHANGELOG_FILE=/liquibase/changelog/db.changelog-master.yaml
-    command: ["update"]
-    restart: "no"
-
-  ms_lab:
-    build:
-      context: .
-      dockerfile: MS_Lab/Dockerfile
-    container_name: ms_lab_api
-    ports:
-      - "5258:8080"
-      - "7122:8081"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ms_lab_db;Username=postgres;Password=postgres
-    depends_on:
-      liquibase:
-        condition: service_completed_successfully
-    restart: unless-stopped
 
 volumes:
   postgres_data:
