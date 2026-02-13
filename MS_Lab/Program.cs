@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using MS_Lab.repositories.events;
 using MS_Lab.repositories.tickets;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +37,7 @@ builder.Services.AddControllers(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IEventService, EventService>();
@@ -49,14 +50,18 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
+
 var app = builder.Build();
 
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MS Lab API V1");
+});
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage(); 
-    //app.UseSwagger(); // Swagger UI
-    //app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
 else
 {
@@ -69,5 +74,7 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapControllers();
+
+
 
 app.Run();
