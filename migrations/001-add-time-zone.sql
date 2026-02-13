@@ -1,0 +1,11 @@
+ALTER TABLE events 
+ALTER COLUMN start_time_utc TYPE TIMESTAMPTZ 
+USING start_time_utc AT TIME ZONE 'UTC';
+
+ALTER TABLE events 
+ALTER COLUMN end_time_utc TYPE TIMESTAMPTZ 
+USING end_time_utc AT TIME ZONE 'UTC';
+
+ALTER TABLE events 
+ALTER COLUMN created_at TYPE TIMESTAMPTZ 
+USING created_at AT TIME ZONE 'UTC';

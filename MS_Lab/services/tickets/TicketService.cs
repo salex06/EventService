@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Logging;
-using MS_Lab.repositories;
 using MS_Lab.dto.ticket;
 using MS_Lab.exception;
 using MS_Lab.entities;
+using MS_Lab.repositories.events;
+using MS_Lab.repositories.tickets;
+using Microsoft.Extensions.Logging;
 
 namespace MS_Lab.services.tickets
 {
@@ -57,7 +57,9 @@ namespace MS_Lab.services.tickets
             if (existingTicket == null)
                 throw new NotFoundException($"Билет с id={ticketId} не найден");
 
-            await ValidateEventAsync(updateTicketDTO.EventId);
+            var foundEvent = await _eventRepository.GetByIdAsync(updateTicketDTO.EventId);
+            if (foundEvent == null)
+                throw new NotFoundException($"Событие с id={updateTicketDTO.EventId} не найдено");
 
             _mapper.Map(updateTicketDTO, existingTicket);
             var updated = await _ticketRepository.UpdateAsync(existingTicket);

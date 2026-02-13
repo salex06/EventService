@@ -1,6 +1,6 @@
 ﻿using MS_Lab.entities;
 
-namespace MS_Lab.repositories
+namespace MS_Lab.repositories.events
 {
 
     public interface IEventRepository

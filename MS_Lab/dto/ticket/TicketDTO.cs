@@ -4,6 +4,7 @@
     {
         public int Id { get; init; }
         public int EventId { get; init; }
+        public string TicketNumber { get; init; }
         public TicketOwnerDTO? TicketOwner { get; init; }
     }
 }

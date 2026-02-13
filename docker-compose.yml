@@ -35,5 +35,20 @@ services:
       postgres:
         condition: service_healthy
 
+  ms_lab:
+    build:
+      context: .
+      dockerfile: MS_Lab/Dockerfile
+    container_name: ms_lab_backend
+    ports:
+      - "5258:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ms_lab_db;Username=postgres;Password=postgres
+    depends_on:
+      liquibase:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
 volumes:
   postgres_data:

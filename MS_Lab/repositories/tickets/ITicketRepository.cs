@@ -1,6 +1,6 @@
 ﻿using MS_Lab.entities;
 
-namespace MS_Lab.repositories
+namespace MS_Lab.repositories.tickets
 {
 
     public interface ITicketRepository

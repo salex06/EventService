@@ -28,13 +28,6 @@ namespace MS_Lab.entities
         [Column("purchase_date")]
         public DateTime PurchaseDate { get; set; } = DateTime.UtcNow;
 
-        [Required]
-        [Column("is_checked_in")]
-        public bool IsCheckedIn { get; set; } = false;
-
-        [Column("checked_in_at")]
-        public DateTime? CheckedInAt { get; set; }
-
         [ForeignKey("EventId")]
         public Event Event { get; set; } = null!;
 

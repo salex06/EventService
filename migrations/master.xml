@@ -8,5 +8,7 @@
         http://www.liquibase.org/xml/ns/dbchangelog-ext https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <include relativeToChangelogFile="true" file="000-initial-schema.sql"/>
+    <include relativeToChangelogFile="true" file="001-add-time-zone.sql"/>
+    <include relativeToChangelogFile="true" file="002-add-time-zone-for-purchase.sql"/>
 
 </databaseChangeLog>

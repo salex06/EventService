@@ -1,0 +1,3 @@
+ALTER TABLE tickets 
+ALTER COLUMN purchase_date TYPE TIMESTAMPTZ 
+USING purchase_date AT TIME ZONE 'UTC';

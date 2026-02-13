@@ -2,7 +2,7 @@
 using MS_Lab.dto.events;
 using MS_Lab.exception;
 using MS_Lab.entities;
-using MS_Lab.repositories;
+using MS_Lab.repositories.events;
 
 namespace MS_Lab.services.events
 {
@@ -50,6 +50,7 @@ namespace MS_Lab.services.events
             if (existingEvent == null)
                 throw new NotFoundException($"Событие с id={eventId} не найдено");
 
+            updateEventDTO.Id = eventId;
             _mapper.Map(updateEventDTO, existingEvent);
 
             var updatedEvent = await _eventRepository.UpdateAsync(existingEvent);

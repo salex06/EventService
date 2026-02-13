@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using MS_Lab.exception;
 using System.ComponentModel.DataAnnotations;
+using System.Net;
 using System.Text.Json;
 
 namespace MS_Lab.filter
 {
     public class ApiExceptionFilter : ExceptionFilterAttribute
     {
+
         public override void OnException(ExceptionContext context)
         {
             var exception = context.Exception;
