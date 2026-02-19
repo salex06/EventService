@@ -43,9 +43,17 @@ namespace MS_Lab.services.tickets
         public async Task<TicketDTO> CreateTicketAsync(CreateTicketDTO createTicketDTO)
         {
             string eventId = createTicketDTO.EventId;
-            await ValidateEventAsync(eventId);
+            var foundEvent = await _eventRepository.GetByIdAsync(eventId);
+            if (foundEvent == null)
+                throw new NotFoundException($"Событие с id={eventId} не найдено");
+
+            var soldTicketNumber = await _ticketRepository.GetSoldTicketNumberByEventIdAsync(eventId);
+            if (soldTicketNumber == foundEvent.TicketCount)
+                throw new BadRequestException("Все билеты проданы");
 
             Ticket ticket = _mapper.Map<Ticket>(createTicketDTO);
+            ticket.Event = foundEvent;
+            
             var savedTicket = await _ticketRepository.CreateAsync(ticket);
 
             return _mapper.Map<TicketDTO>(savedTicket);
@@ -57,9 +65,9 @@ namespace MS_Lab.services.tickets
             if (existingTicket == null)
                 throw new NotFoundException($"Билет с id={ticketId} не найден");
 
-            var foundEvent = await _eventRepository.GetByIdAsync(updateTicketDTO.EventId);
+            var foundEvent = await _eventRepository.GetByIdAsync(existingTicket.Event.Id);
             if (foundEvent == null)
-                throw new NotFoundException($"Событие с id={updateTicketDTO.EventId} не найдено");
+                throw new NotFoundException($"Событие с id={existingTicket.Event.Id} не найдено");
 
             _mapper.Map(updateTicketDTO, existingTicket);
             var updated = await _ticketRepository.UpdateAsync(existingTicket);
