@@ -42,7 +42,7 @@ namespace MS_Lab.api
         /// </summary>
         /// <remarks>
         /// Пример запроса:
-        /// GET /api/event/5
+        /// GET /api/event/af84kcn47fnds
         /// 
         /// </remarks>
         /// <param name="id">ID события (целое число)</param>
@@ -54,7 +54,7 @@ namespace MS_Lab.api
         [ProducesResponseType(typeof(EventDTO), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult<EventDTO>> GetById(int id) {
+        public async Task<ActionResult<EventDTO>> GetById(string id) {
             var foundEvent = await _eventService.GetEventByIdAsync(id);
 
             return Ok(foundEvent);
@@ -97,7 +97,7 @@ namespace MS_Lab.api
         /// </summary>
         /// <remarks>
         /// Пример запроса:
-        /// PATCH /api/event/5
+        /// PATCH /api/event/afe937dncle83jd31209
         /// {
         ///    "name": "[Top Secret]",
         ///    "place": "Очень секретная конференция по использованию Postman",
@@ -120,7 +120,7 @@ namespace MS_Lab.api
         [ProducesResponseType(400)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult<EventDTO>> Update(int id, UpdateEventDTO eventInfo)
+        public async Task<ActionResult<EventDTO>> Update(string id, UpdateEventDTO eventInfo)
         {
             var updatedEvent = await _eventService.UpdateEventAsync(id, eventInfo);
             return Ok(updatedEvent);
@@ -131,7 +131,7 @@ namespace MS_Lab.api
         /// </summary>
         /// <remarks>
         /// Пример запроса:
-        ///     DELETE /api/event/5
+        ///     DELETE /api/event/5fbmvu104uyd83
         ///     
         /// </remarks>
         /// <response code="200">Событие удалено</response>
@@ -141,7 +141,7 @@ namespace MS_Lab.api
         [ProducesResponseType(typeof(void), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult> Delete(int id) {
+        public async Task<ActionResult> Delete(string id) {
             await _eventService.DeleteEventAsync(id);
 
             return Ok();

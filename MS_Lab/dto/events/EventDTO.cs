@@ -4,7 +4,7 @@ namespace MS_Lab.dto.events
 {
     public record EventDTO
     {
-        public int Id { get; init; }
+        public string Id { get; init; } = string.Empty;
         public string Name { get; init; } = string.Empty;
         public string Description { get; init; } = string.Empty;
         public string Place { get; init; } = string.Empty;

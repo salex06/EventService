@@ -5,9 +5,9 @@ namespace MS_Lab.services.tickets
     public interface ITicketService
     {
         Task<IEnumerable<TicketDTO>> GetAllTicketsAsync();
-        Task<TicketDTO> GetTicketByIdAsync(int id);
+        Task<TicketDTO> GetTicketByIdAsync(string id);
         Task<TicketDTO> CreateTicketAsync(CreateTicketDTO createTicketDTO);
-        Task<TicketDTO> UpdateTicketAsync(int id, UpdateTicketDTO updateTicketDTO);
-        Task DeleteTicketAsync(int id);
+        Task<TicketDTO> UpdateTicketAsync(string id, UpdateTicketDTO updateTicketDTO);
+        Task DeleteTicketAsync(string id);
     }
 }

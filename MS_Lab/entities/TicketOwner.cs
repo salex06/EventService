@@ -1,38 +1,26 @@
-﻿using MS_Lab.entities;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Bson;
+using MS_Lab.entities;
 
 namespace MS_Lab.entities
 {
-
-    [Table("ticket_owners")]
     public class TicketOwner
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column("id")]
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         public int Id { get; set; }
 
-        [Required]
-        [MaxLength(100)]
-        [Column("name")]
+        [BsonElement("name")]
         public string Name { get; set; } = string.Empty;
 
-        [Required]
-        [MaxLength(100)]
-        [Column("surname")]
+        [BsonElement("surname")]
         public string Surname { get; set; } = string.Empty;
 
-        [MaxLength(20)]
-        [Column("phone")]
+        [BsonElement("phone")]
         public string? Phone { get; set; }
 
-        [Required]
-        [MaxLength(100)]
-        [Column("email")]
+        [BsonElement("email")]
         public string Email { get; set; } = string.Empty;
-
-        public Ticket? Ticket { get; set; }
     }
 
 }

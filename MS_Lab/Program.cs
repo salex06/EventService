@@ -3,26 +3,29 @@ using MS_Lab.filter;
 using MS_Lab.services.tickets;
 using MS_Lab.services.events;
 using MS_Lab.data;
-using Microsoft.EntityFrameworkCore;
 using MS_Lab.repositories.events;
 using MS_Lab.repositories.tickets;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddSingleton<IMongoClient>(sp =>
 {
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        sqlServerOptions => sqlServerOptions.EnableRetryOnFailure(3));
-
-    if (builder.Environment.IsDevelopment())
-    {
-        options.EnableSensitiveDataLogging();
-        options.LogTo(Console.WriteLine, LogLevel.Information);
-    }
+    var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+    return new MongoClient(settings.ConnectionString);
 });
+
+builder.Services.AddScoped<IMongoDatabase>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
+    var client = sp.GetRequiredService<IMongoClient>();
+    return client.GetDatabase(settings.DatabaseName);
+});
+
+builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDb"));
+builder.Services.AddScoped<MongoDbContext>();
 
 builder.Services.AddAutoMapper(cfg =>
 {

@@ -2,7 +2,7 @@
 {
     public record CreateTicketDTO
     {
-        public int EventId { get; init; }
+        public string EventId { get; init; } = string.Empty;
         public TicketOwnerDTO? TicketOwner { get; init; }
     }
 }

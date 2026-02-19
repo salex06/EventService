@@ -6,11 +6,11 @@ namespace MS_Lab.repositories.events
     public interface IEventRepository
     {
         Task<IEnumerable<Event>> GetAllAsync();
-        Task<Event?> GetByIdAsync(int id);
+        Task<Event?> GetByIdAsync(string id);
         Task<Event> CreateAsync(Event eventEntity);
-        Task<Event> UpdateAsync(Event eventEntity);
-        Task DeleteAsync(int id);
-        Task<bool> ExistsByIdAsync(int id);
+        Task<Event?> UpdateAsync(Event eventEntity);
+        Task DeleteAsync(string id);
+        Task<bool> ExistsByIdAsync(string id);
     }
 
 }

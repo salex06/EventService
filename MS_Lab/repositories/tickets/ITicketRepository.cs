@@ -6,11 +6,11 @@ namespace MS_Lab.repositories.tickets
     public interface ITicketRepository
     {
         Task<IEnumerable<Ticket>> GetAllAsync();
-        Task<Ticket?> GetByIdAsync(int id);
+        Task<Ticket?> GetByIdAsync(string id);
         Task<Ticket> CreateAsync(Ticket ticket);
         Task<Ticket> UpdateAsync(Ticket ticket);
-        Task DeleteAsync(int id);
-        Task<bool> ExistsByIdAsync(int id);
-        Task<int> GetSoldTicketNumberByEventIdAsync(int eventId);
+        Task DeleteAsync(string id);
+        Task<bool> ExistsByIdAsync(string id);
+        Task<long> GetSoldTicketNumberByEventIdAsync(string eventId);
     }
 }

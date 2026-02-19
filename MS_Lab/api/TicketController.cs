@@ -33,9 +33,9 @@ namespace MS_Lab.api
         [ProducesResponseType(typeof(IEnumerable<TicketDTO>), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
         public async Task<ActionResult<IEnumerable<TicketDTO>>> GetAll() {
-            var users = await _ticketService.GetAllTicketsAsync();
+            var tickets = await _ticketService.GetAllTicketsAsync();
 
-            return Ok(users);
+            return Ok(tickets);
         }
 
         /// <summary>
@@ -43,10 +43,10 @@ namespace MS_Lab.api
         /// </summary>
         /// <remarks>
         /// Пример запроса:
-        /// GET /api/ticket/5
+        /// GET /api/ticket/djvhuv3nc2u389371d
         /// 
         /// </remarks>
-        /// <param name="id">ID билета (целое число)</param>
+        /// <param name="id">ID билета</param>
         /// <returns>Детальная информация о билете</returns>
         /// <response code="200">Билет найден</response>
         /// <response code="404">Билет не найден</response>
@@ -55,7 +55,7 @@ namespace MS_Lab.api
         [ProducesResponseType(typeof(TicketDTO), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult<TicketDTO>> GetById(int id) {
+        public async Task<ActionResult<TicketDTO>> GetById(string id) {
             var ticket = await _ticketService.GetTicketByIdAsync(id);
             if (ticket == null) {
                 return NotFound();
@@ -102,7 +102,7 @@ namespace MS_Lab.api
         /// <remarks>
         /// Пример запроса:
         /// 
-        ///     PATCH /api/ticket/5
+        ///     PATCH /api/ticket/ccfurwldnc21
         ///     {
         ///     "eventId": 7,
         ///     "ticketOwner": {
@@ -123,7 +123,7 @@ namespace MS_Lab.api
         [ProducesResponseType(400)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult<TicketDTO>> Update(int id, UpdateTicketDTO ticketInfo) {
+        public async Task<ActionResult<TicketDTO>> Update(string id, UpdateTicketDTO ticketInfo) {
             var ticket = await _ticketService.UpdateTicketAsync(id, ticketInfo);
 
             return Ok(ticket);
@@ -134,7 +134,7 @@ namespace MS_Lab.api
         /// </summary>
         /// <remarks>
         /// Пример запроса:
-        ///     DELETE /api/ticket/5
+        ///     DELETE /api/ticket/22od393d38dnc
         ///     
         /// </remarks>
         /// <response code="200">Билет удалён</response>
@@ -144,7 +144,7 @@ namespace MS_Lab.api
         [ProducesResponseType(typeof(void), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult> Delete(int id) {
+        public async Task<ActionResult> Delete(string id) {
             await _ticketService.DeleteTicketAsync(id);
 
             return Ok();

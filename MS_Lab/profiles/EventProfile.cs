@@ -12,7 +12,7 @@ namespace MS_Lab.profiles
             CreateMap<EventDTO, Event>();
             CreateMap<Event, EventDTO>();
 
-            CreateMap<UpdateEventDTO, Event>()
+            CreateMap<UpdateEventDTO, Event>() 
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             CreateMap<UpdateEventDTO, Event>();

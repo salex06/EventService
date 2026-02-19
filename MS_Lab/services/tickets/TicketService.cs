@@ -29,7 +29,7 @@ namespace MS_Lab.services.tickets
             return _mapper.Map<IEnumerable<TicketDTO>>(tickets);
         }
 
-        public async Task<TicketDTO> GetTicketByIdAsync(int id)
+        public async Task<TicketDTO> GetTicketByIdAsync(string id)
         {
             var ticket = await _ticketRepository.GetByIdAsync(id);
             if (ticket == null)
@@ -42,7 +42,7 @@ namespace MS_Lab.services.tickets
 
         public async Task<TicketDTO> CreateTicketAsync(CreateTicketDTO createTicketDTO)
         {
-            int eventId = createTicketDTO.EventId;
+            string eventId = createTicketDTO.EventId;
             await ValidateEventAsync(eventId);
 
             Ticket ticket = _mapper.Map<Ticket>(createTicketDTO);
@@ -51,7 +51,7 @@ namespace MS_Lab.services.tickets
             return _mapper.Map<TicketDTO>(savedTicket);
         }
 
-        public async Task<TicketDTO> UpdateTicketAsync(int ticketId, UpdateTicketDTO updateTicketDTO)
+        public async Task<TicketDTO> UpdateTicketAsync(string ticketId, UpdateTicketDTO updateTicketDTO)
         {
             var existingTicket = await _ticketRepository.GetByIdAsync(ticketId);
             if (existingTicket == null)
@@ -66,7 +66,7 @@ namespace MS_Lab.services.tickets
             return _mapper.Map<TicketDTO>(updated);
         }
 
-        public async Task DeleteTicketAsync(int id)
+        public async Task DeleteTicketAsync(string id)
         {
             if (!await _ticketRepository.ExistsByIdAsync(id))
             {
@@ -76,7 +76,7 @@ namespace MS_Lab.services.tickets
             await _ticketRepository.DeleteAsync(id);
         }
 
-        private async Task ValidateEventAsync(int eventId)
+        private async Task ValidateEventAsync(string eventId)
         {
             var foundEvent = await _eventRepository.GetByIdAsync(eventId);
             if (foundEvent == null)

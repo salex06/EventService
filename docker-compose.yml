@@ -1,39 +1,50 @@
 services:
-  postgres:
-    image: postgres:17-alpine
-    container_name: ms_lab_db
-    environment:
-      POSTGRES_DB: ms_lab_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+  # postgres:
+  #   image: postgres:17-alpine
+  #   container_name: ms_lab_db
+  #   environment:
+  #     POSTGRES_DB: ms_lab_db
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: pg_isready -U postgres -d ms_lab_db
+  #     interval: 15s
+  #     timeout: 15s
+  #     retries: 5
+  #   restart: unless-stopped
+
+
+  # liquibase:
+  #   container_name: ms_lab_migrations
+  #   image: liquibase/liquibase:4.29
+  #   command:
+  #       - --searchPath=/changesets
+  #       - --changelog-file=master.xml
+  #       - --driver=org.postgresql.Driver
+  #       - --url=jdbc:postgresql://postgres:5432/ms_lab_db
+  #       - --username=postgres
+  #       - --password=postgres
+  #       - update 
+  #   volumes:
+  #       - ./migrations:/changesets
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+
+  mongodb:
+    image: mongo:4.4-focal
+    container_name: ms_lab_mongodb
     ports:
-      - "5432:5432"
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: pg_isready -U postgres -d ms_lab_db
-      interval: 15s
-      timeout: 15s
-      retries: 5
-    restart: unless-stopped
-
-
-  liquibase:
-    container_name: ms_lab_migrations
-    image: liquibase/liquibase:4.29
-    command:
-        - --searchPath=/changesets
-        - --changelog-file=master.xml
-        - --driver=org.postgresql.Driver
-        - --url=jdbc:postgresql://postgres:5432/ms_lab_db
-        - --username=postgres
-        - --password=postgres
-        - update 
-    volumes:
-        - ./migrations:/changesets
-    depends_on:
-      postgres:
-        condition: service_healthy
+      - mongodb_data:/data/db
 
   ms_lab:
     build:
@@ -45,10 +56,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ms_lab_db;Username=postgres;Password=postgres
-    depends_on:
-      liquibase:
-        condition: service_completed_successfully
+    # depends_on:
+    #   liquibase:
+    #     condition: service_completed_successfully
     restart: unless-stopped
 
 volumes:
-  postgres_data:
+  mongodb_data:

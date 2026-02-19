@@ -24,7 +24,7 @@ namespace MS_Lab.services.events
             return _mapper.Map<IEnumerable<EventDTO>>(events);
         }
 
-        public async Task<EventDTO> GetEventByIdAsync(int id)
+        public async Task<EventDTO> GetEventByIdAsync(string id)
         {
             var foundEvent = await _eventRepository.GetByIdAsync(id);
             if (foundEvent == null)
@@ -44,7 +44,7 @@ namespace MS_Lab.services.events
             return _mapper.Map<EventDTO>(savedEvent);
         }
 
-        public async Task<EventDTO> UpdateEventAsync(int eventId, UpdateEventDTO updateEventDTO)
+        public async Task<EventDTO> UpdateEventAsync(string eventId, UpdateEventDTO updateEventDTO)
         {
             var existingEvent = await _eventRepository.GetByIdAsync(eventId);
             if (existingEvent == null)
@@ -57,7 +57,7 @@ namespace MS_Lab.services.events
             return _mapper.Map<EventDTO>(updatedEvent);
         }
 
-        public async Task DeleteEventAsync(int id)
+        public async Task DeleteEventAsync(string id)
         {
             if (!await _eventRepository.ExistsByIdAsync(id))
             {
