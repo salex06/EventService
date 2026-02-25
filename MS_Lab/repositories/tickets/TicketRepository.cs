@@ -5,6 +5,7 @@ using MongoDB.Driver;
 using MS_Lab.config;
 using MS_Lab.data;
 using MS_Lab.entities;
+using MS_Lab.specification;
 
 namespace MS_Lab.repositories.tickets
 {
@@ -18,9 +19,16 @@ namespace MS_Lab.repositories.tickets
             _tickets = db.GetCollection<Ticket>("tickets");
             _repositoryConfig = settings.Value;
         }
-        public async Task<IEnumerable<Ticket>> GetAllAsync()
+        public async Task<IEnumerable<Ticket>> GetAllAsync(ISpecification<Ticket>? spec = null)
         {
+            var filter = Builders<Ticket>.Filter.Empty;
+
+            if (spec?.Criteria != null) {
+                filter = Builders<Ticket>.Filter.Where(spec.Criteria);
+            }
+
             return await _tickets.Aggregate()
+                .Match(filter)
                 .Sample(_repositoryConfig.ObjectPerRequestLimit)
                 .ToListAsync();
         }

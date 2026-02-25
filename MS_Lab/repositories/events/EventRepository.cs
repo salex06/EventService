@@ -5,6 +5,7 @@ using MongoDB.Driver;
 using MS_Lab.config;
 using MS_Lab.data;
 using MS_Lab.entities;
+using MS_Lab.specification;
 using System.Net.Sockets;
 
 namespace MS_Lab.repositories.events
@@ -20,9 +21,16 @@ namespace MS_Lab.repositories.events
             _repositoryConfig = settings.Value;
         }
 
-        public async Task<IEnumerable<Event>> GetAllAsync()
+        public async Task<IEnumerable<Event>> GetAllAsync(ISpecification<Event>? spec = null)
         {
+            var filter = Builders<Event>.Filter.Empty;
+            
+            if (spec?.Criteria != null) {
+                filter = Builders<Event>.Filter.Where(spec.Criteria);
+            }
+
             return await _events.Aggregate()
+                .Match(filter)
                 .Sample(_repositoryConfig.ObjectPerRequestLimit)
                 .ToListAsync();
         }

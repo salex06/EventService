@@ -3,6 +3,7 @@ using MS_Lab.dto.events;
 using MS_Lab.exception;
 using MS_Lab.entities;
 using MS_Lab.repositories.events;
+using MS_Lab.specification;
 
 namespace MS_Lab.services.events
 {
@@ -17,9 +18,11 @@ namespace MS_Lab.services.events
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<EventDto>> GetAllEventsAsync()
+        public async Task<IEnumerable<EventDto>> GetAllEventsAsync(EventFilterDto filter)
         {
-            var events = await _eventRepository.GetAllAsync();
+            var spec = EventSpecification.FromFilter(filter);
+
+            var events = await _eventRepository.GetAllAsync(spec);
 
             return _mapper.Map<IEnumerable<EventDto>>(events);
         }

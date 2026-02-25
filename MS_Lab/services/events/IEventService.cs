@@ -4,7 +4,7 @@ namespace MS_Lab.services.events
 {
     public interface IEventService
     {
-        Task<IEnumerable<EventDto>> GetAllEventsAsync();
+        Task<IEnumerable<EventDto>> GetAllEventsAsync(EventFilterDto filter);
         Task<EventDto> GetEventByIdAsync(string id);
         Task<EventDto> CreateEventAsync(CreateEventDto createEventDTO);
         Task<EventDto> UpdateEventAsync(string eventId, UpdateEventDto updateEventDTO);

@@ -32,9 +32,9 @@ namespace MS_Lab.api
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<TicketDto>), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult<IEnumerable<TicketDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<TicketDto>>> GetAll([FromQuery] TicketFilterDto filter)
         {
-            var tickets = await _ticketService.GetAllTicketsAsync();
+            var tickets = await _ticketService.GetAllTicketsAsync(filter);
 
             return Ok(tickets);
         }

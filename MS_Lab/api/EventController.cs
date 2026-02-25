@@ -31,9 +31,9 @@ namespace MS_Lab.api
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<EventDto>), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult<IEnumerable<EventDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<EventDto>>> GetAll([FromQuery] EventFilterDto filter)
         {
-            var events = await _eventService.GetAllEventsAsync();
+            var events = await _eventService.GetAllEventsAsync(filter);
 
             return Ok(events);
         }

@@ -5,6 +5,7 @@ using MS_Lab.entities;
 using MS_Lab.repositories.events;
 using MS_Lab.repositories.tickets;
 using Microsoft.Extensions.Logging;
+using MS_Lab.specification;
 
 namespace MS_Lab.services.tickets
 {
@@ -22,9 +23,11 @@ namespace MS_Lab.services.tickets
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<TicketDto>> GetAllTicketsAsync()
+        public async Task<IEnumerable<TicketDto>> GetAllTicketsAsync(TicketFilterDto filter)
         {
-            var tickets = await _ticketRepository.GetAllAsync();
+            var spec = TicketSpecification.FromFilter(filter);
+
+            var tickets = await _ticketRepository.GetAllAsync(spec);
 
             return _mapper.Map<IEnumerable<TicketDto>>(tickets);
         }
