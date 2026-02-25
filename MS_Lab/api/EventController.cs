@@ -7,7 +7,7 @@ namespace MS_Lab.api
 {
     [ApiController]
     [Route("api/event")]
-    public class EventController : Controller
+    public class EventController : ControllerBase
     {
 
         private readonly IEventService _eventService;
@@ -29,9 +29,10 @@ namespace MS_Lab.api
         /// <response code="200">Список событий успешно получен</response>
         /// <response code="500">Ошибка сервера</response>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<EventDTO>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<EventDto>), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult<IEnumerable<EventDTO>>> GetAll() {
+        public async Task<ActionResult<IEnumerable<EventDto>>> GetAll()
+        {
             var events = await _eventService.GetAllEventsAsync();
 
             return Ok(events);
@@ -51,10 +52,11 @@ namespace MS_Lab.api
         /// <response code="404">Событие не найдено</response>
         /// <response code="500">Ошибка сервера</response>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(EventDTO), 200)]
+        [ProducesResponseType(typeof(EventDto), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult<EventDTO>> GetById(string id) {
+        public async Task<ActionResult<EventDto>> GetById(string id)
+        {
             var foundEvent = await _eventService.GetEventByIdAsync(id);
 
             return Ok(foundEvent);
@@ -83,13 +85,14 @@ namespace MS_Lab.api
         /// <response code="400">Некорректные данные</response>
         /// <response code="500">Ошибка сервера</response>
         [HttpPost]
-        [ProducesResponseType(typeof(EventDTO), 201)]
+        [ProducesResponseType(typeof(EventDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult<EventDTO>> Create(CreateEventDTO eventInfo) {
+        public async Task<ActionResult<EventDto>> Create(CreateEventDto eventInfo)
+        {
             var createdEvent = await _eventService.CreateEventAsync(eventInfo);
 
-            return CreatedAtAction(nameof(GetById), new { id = createdEvent.Id}, createdEvent);
+            return CreatedAtAction(nameof(GetById), new { id = createdEvent.Id }, createdEvent);
         }
 
         /// <summary>
@@ -116,11 +119,11 @@ namespace MS_Lab.api
         /// <response code="404">Событие не найдено данные</response>
         /// <response code="500">Ошибка сервера</response>
         [HttpPatch("{id}")]
-        [ProducesResponseType(typeof(EventDTO), 200)]
+        [ProducesResponseType(typeof(EventDto), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult<EventDTO>> Update(string id, UpdateEventDTO eventInfo)
+        public async Task<ActionResult<EventDto>> Update(string id, UpdateEventDto eventInfo)
         {
             var updatedEvent = await _eventService.UpdateEventAsync(id, eventInfo);
             return Ok(updatedEvent);
@@ -141,7 +144,8 @@ namespace MS_Lab.api
         [ProducesResponseType(typeof(void), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult> Delete(string id) {
+        public async Task<ActionResult> Delete(string id)
+        {
             await _eventService.DeleteEventAsync(id);
 
             return Ok();

@@ -42,7 +42,7 @@ builder.Services.AddAutoMapper(cfg =>
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilter>();
-    options.Filters.Add<ApiExceptionFilter>();
+    options.Filters.Add<ApiExceptionFilterAttribute>();
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -84,6 +84,4 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-
-
-app.Run();
+await app.RunAsync();

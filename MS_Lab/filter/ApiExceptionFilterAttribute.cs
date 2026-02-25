@@ -7,17 +7,18 @@ using System.Text.Json;
 
 namespace MS_Lab.filter
 {
-    public class ApiExceptionFilter : ExceptionFilterAttribute
+    [AttributeUsage(AttributeTargets.All)]
+    public class ApiExceptionFilterAttribute : ExceptionFilterAttribute
     {
 
         public override void OnException(ExceptionContext context)
         {
             var exception = context.Exception;
-            var request = context.HttpContext.Request;
 
             var response = new ErrorResponse();
 
-            switch (exception) {
+            switch (exception)
+            {
                 case NotFoundException notFound:
                     response.StatusCode = notFound.StatusCode;
                     response.Message = notFound.Message;

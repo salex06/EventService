@@ -22,14 +22,14 @@ namespace MS_Lab.services.tickets
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<TicketDTO>> GetAllTicketsAsync()
+        public async Task<IEnumerable<TicketDto>> GetAllTicketsAsync()
         {
             var tickets = await _ticketRepository.GetAllAsync();
 
-            return _mapper.Map<IEnumerable<TicketDTO>>(tickets);
+            return _mapper.Map<IEnumerable<TicketDto>>(tickets);
         }
 
-        public async Task<TicketDTO> GetTicketByIdAsync(string id)
+        public async Task<TicketDto> GetTicketByIdAsync(string id)
         {
             var ticket = await _ticketRepository.GetByIdAsync(id);
             if (ticket == null)
@@ -37,10 +37,10 @@ namespace MS_Lab.services.tickets
                 throw new NotFoundException($"Билет с id={id} не найден");
             }
 
-            return _mapper.Map<TicketDTO>(ticket);
+            return _mapper.Map<TicketDto>(ticket);
         }
 
-        public async Task<TicketDTO> CreateTicketAsync(CreateTicketDTO createTicketDTO)
+        public async Task<TicketDto> CreateTicketAsync(CreateTicketDto createTicketDTO)
         {
             string eventId = createTicketDTO.EventId;
             var foundEvent = await _eventRepository.GetByIdAsync(eventId);
@@ -53,17 +53,17 @@ namespace MS_Lab.services.tickets
 
             Ticket ticket = _mapper.Map<Ticket>(createTicketDTO);
             ticket.Event = foundEvent;
-            
+
             var savedTicket = await _ticketRepository.CreateAsync(ticket);
 
-            return _mapper.Map<TicketDTO>(savedTicket);
+            return _mapper.Map<TicketDto>(savedTicket);
         }
 
-        public async Task<TicketDTO> UpdateTicketAsync(string ticketId, UpdateTicketDTO updateTicketDTO)
+        public async Task<TicketDto> UpdateTicketAsync(string id, UpdateTicketDto updateTicketDTO)
         {
-            var existingTicket = await _ticketRepository.GetByIdAsync(ticketId);
+            var existingTicket = await _ticketRepository.GetByIdAsync(id);
             if (existingTicket == null)
-                throw new NotFoundException($"Билет с id={ticketId} не найден");
+                throw new NotFoundException($"Билет с id={id} не найден");
 
             var foundEvent = await _eventRepository.GetByIdAsync(existingTicket.Event.Id);
             if (foundEvent == null)
@@ -71,7 +71,7 @@ namespace MS_Lab.services.tickets
 
             _mapper.Map(updateTicketDTO, existingTicket);
             var updated = await _ticketRepository.UpdateAsync(existingTicket);
-            return _mapper.Map<TicketDTO>(updated);
+            return _mapper.Map<TicketDto>(updated);
         }
 
         public async Task DeleteTicketAsync(string id)
@@ -82,17 +82,6 @@ namespace MS_Lab.services.tickets
             }
 
             await _ticketRepository.DeleteAsync(id);
-        }
-
-        private async Task ValidateEventAsync(string eventId)
-        {
-            var foundEvent = await _eventRepository.GetByIdAsync(eventId);
-            if (foundEvent == null)
-                throw new NotFoundException($"Событие с id={eventId} не найдено");
-
-            var soldTicketNumber = await _ticketRepository.GetSoldTicketNumberByEventIdAsync(eventId);
-            if (soldTicketNumber == foundEvent.TicketCount)
-                throw new BadRequestException("Все билеты проданы");
         }
     }
 }

@@ -8,14 +8,14 @@ namespace MS_Lab.profiles
     {
         public TicketProfile()
         {
-            CreateMap<Ticket, TicketDTO>()
+            CreateMap<Ticket, TicketDto>()
              .ForMember(dest => dest.EventId,
                  opt => opt.MapFrom(src => src.Event.Id))
              .ForMember(dest => dest.TicketOwner,
                  opt => opt.MapFrom(src => src.Owner));
-            CreateMap<TicketOwner, TicketOwnerDTO>();
+            CreateMap<TicketOwner, TicketOwnerDto>();
 
-            CreateMap<CreateTicketDTO, Ticket>()
+            CreateMap<CreateTicketDto, Ticket>()
             .ForMember(dest => dest.Id,
                 opt => opt.Ignore())
             .ForMember(dest => dest.TicketNumber,
@@ -28,7 +28,7 @@ namespace MS_Lab.profiles
                 opt => opt.MapFrom(src => src.TicketOwner));
 
 
-            CreateMap<TicketOwnerDTO, TicketOwner>()
+            CreateMap<TicketOwnerDto, TicketOwner>()
              .ForMember(dest => dest.Id,
                  opt => opt.Ignore())
              .ForMember(dest => dest.Name,
@@ -40,26 +40,26 @@ namespace MS_Lab.profiles
              .ForMember(dest => dest.Email,
                  opt => opt.MapFrom(src => src.Email));
 
-            CreateMap<UpdateTicketDTO, Ticket>()
+            CreateMap<UpdateTicketDto, Ticket>()
                .ForMember(dest => dest.Owner,
                    opt => opt.MapFrom(src => src.TicketOwner))
                .ForMember(dest => dest.Id,
-                   opt => opt.Ignore()) 
+                   opt => opt.Ignore())
                .ForMember(dest => dest.Event,
-                   opt => opt.Ignore()) 
+                   opt => opt.Ignore())
                .ForMember(dest => dest.TicketNumber,
-                   opt => opt.Ignore()) 
+                   opt => opt.Ignore())
                .ForMember(dest => dest.PurchaseDate,
                    opt => opt.Ignore());
 
-            CreateMap<TicketOwnerDTO, TicketOwner>()
+            CreateMap<TicketOwnerDto, TicketOwner>()
             .ForMember(dest => dest.Id,
                 opt => opt.Ignore())
             .ForAllMembers(opt => opt.Condition((src, dest, srcMember) =>
                 srcMember != null));
         }
 
-        private string GenerateTicketNumber()
+        private static string GenerateTicketNumber()
         {
             // Формат: TICKET-YYYYMMDD-XXXXXXXX (X - случайные символы)
             var date = DateTime.UtcNow.ToString("yyyyMMdd");

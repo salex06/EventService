@@ -18,20 +18,23 @@ namespace MS_Lab.repositories.tickets
             _tickets = db.GetCollection<Ticket>("tickets");
             _repositoryConfig = settings.Value;
         }
-        public async Task<IEnumerable<Ticket>> GetAllAsync() {
+        public async Task<IEnumerable<Ticket>> GetAllAsync()
+        {
             return await _tickets.Aggregate()
                 .Sample(_repositoryConfig.ObjectPerRequestLimit)
                 .ToListAsync();
         }
 
-        public async Task<Ticket?> GetByIdAsync(string id) {
+        public async Task<Ticket?> GetByIdAsync(string id)
+        {
             try
             {
                 var filter = Builders<Ticket>.Filter.Eq(e => e.Id, id);
 
                 return await _tickets.Find(filter).FirstOrDefaultAsync();
             }
-            catch (FormatException) {
+            catch (FormatException)
+            {
                 return null;
             }
         }
@@ -57,7 +60,8 @@ namespace MS_Lab.repositories.tickets
 
                 return ticket;
             }
-            catch (FormatException) {
+            catch (FormatException)
+            {
                 return null;
             }
         }
@@ -69,12 +73,14 @@ namespace MS_Lab.repositories.tickets
                 var filter = Builders<Ticket>.Filter.Eq(t => t.Id, id);
                 await _tickets.DeleteOneAsync(filter);
             }
-            catch (FormatException) { 
+            catch (FormatException)
+            {
                 //It'll be better to log it
             }
         }
 
-        public async Task<bool> ExistsByIdAsync(string id) {
+        public async Task<bool> ExistsByIdAsync(string id)
+        {
             try
             {
                 var filter = Builders<Ticket>.Filter.Eq(t => t.Id, id);
@@ -86,7 +92,8 @@ namespace MS_Lab.repositories.tickets
 
                 return count > 0;
             }
-            catch (FormatException) {
+            catch (FormatException)
+            {
                 return false;
             }
         }
@@ -97,7 +104,8 @@ namespace MS_Lab.repositories.tickets
             {
                 return await _tickets.CountDocumentsAsync(t => t.Event.Id == eventId);
             }
-            catch (FormatException) {
+            catch (FormatException)
+            {
                 return 0;
             }
         }

@@ -9,16 +9,16 @@ namespace MS_Lab.profiles
     {
         public EventProfile()
         {
-            CreateMap<EventDTO, Event>();
-            CreateMap<Event, EventDTO>();
+            CreateMap<EventDto, Event>();
+            CreateMap<Event, EventDto>();
 
-            CreateMap<UpdateEventDTO, Event>() 
+            CreateMap<UpdateEventDto, Event>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
-            CreateMap<UpdateEventDTO, Event>();
+            CreateMap<UpdateEventDto, Event>();
 
-            CreateMap<Event, CreateEventDTO>();
-            CreateMap<CreateEventDTO, Event>();
+            CreateMap<Event, CreateEventDto>();
+            CreateMap<CreateEventDto, Event>();
         }
     }
 }

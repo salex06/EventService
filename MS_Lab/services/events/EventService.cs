@@ -17,14 +17,14 @@ namespace MS_Lab.services.events
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<EventDTO>> GetAllEventsAsync()
+        public async Task<IEnumerable<EventDto>> GetAllEventsAsync()
         {
             var events = await _eventRepository.GetAllAsync();
 
-            return _mapper.Map<IEnumerable<EventDTO>>(events);
+            return _mapper.Map<IEnumerable<EventDto>>(events);
         }
 
-        public async Task<EventDTO> GetEventByIdAsync(string id)
+        public async Task<EventDto> GetEventByIdAsync(string id)
         {
             var foundEvent = await _eventRepository.GetByIdAsync(id);
             if (foundEvent == null)
@@ -32,19 +32,19 @@ namespace MS_Lab.services.events
                 throw new NotFoundException($"Событие с id={id} не найдено");
             }
 
-            return _mapper.Map<EventDTO>(foundEvent);
+            return _mapper.Map<EventDto>(foundEvent);
         }
 
-        public async Task<EventDTO> CreateEventAsync(CreateEventDTO createEventDTO)
+        public async Task<EventDto> CreateEventAsync(CreateEventDto createEventDTO)
         {
             var eventInfo = _mapper.Map<Event>(createEventDTO);
 
             var savedEvent = await _eventRepository.CreateAsync(eventInfo);
 
-            return _mapper.Map<EventDTO>(savedEvent);
+            return _mapper.Map<EventDto>(savedEvent);
         }
 
-        public async Task<EventDTO> UpdateEventAsync(string eventId, UpdateEventDTO updateEventDTO)
+        public async Task<EventDto> UpdateEventAsync(string eventId, UpdateEventDto updateEventDTO)
         {
             var existingEvent = await _eventRepository.GetByIdAsync(eventId);
             if (existingEvent == null)
@@ -54,7 +54,7 @@ namespace MS_Lab.services.events
             _mapper.Map(updateEventDTO, existingEvent);
 
             var updatedEvent = await _eventRepository.UpdateAsync(existingEvent);
-            return _mapper.Map<EventDTO>(updatedEvent);
+            return _mapper.Map<EventDto>(updatedEvent);
         }
 
         public async Task DeleteEventAsync(string id)

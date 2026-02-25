@@ -8,7 +8,7 @@ namespace MS_Lab.api
 {
     [ApiController]
     [Route("api/ticket")]
-    public class TicketController : Controller
+    public class TicketController : ControllerBase
     {
 
         private readonly ITicketService _ticketService;
@@ -30,9 +30,10 @@ namespace MS_Lab.api
         /// <response code="200">Список билетов успешно получен</response>
         /// <response code="500">Ошибка сервера</response>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<TicketDTO>), 200)]
+        [ProducesResponseType(typeof(IEnumerable<TicketDto>), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult<IEnumerable<TicketDTO>>> GetAll() {
+        public async Task<ActionResult<IEnumerable<TicketDto>>> GetAll()
+        {
             var tickets = await _ticketService.GetAllTicketsAsync();
 
             return Ok(tickets);
@@ -52,12 +53,14 @@ namespace MS_Lab.api
         /// <response code="404">Билет не найден</response>
         /// <response code="500">Ошибка сервера</response>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(TicketDTO), 200)]
+        [ProducesResponseType(typeof(TicketDto), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult<TicketDTO>> GetById(string id) {
+        public async Task<ActionResult<TicketDto>> GetById(string id)
+        {
             var ticket = await _ticketService.GetTicketByIdAsync(id);
-            if (ticket == null) {
+            if (ticket == null)
+            {
                 return NotFound();
             }
 
@@ -87,11 +90,12 @@ namespace MS_Lab.api
         /// <response code="404">Событие не найдено</response>
         /// <response code="500">Ошибка сервера</response>
         [HttpPost]
-        [ProducesResponseType(typeof(TicketDTO), 201)]
+        [ProducesResponseType(typeof(TicketDto), 201)]
         [ProducesResponseType(400)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult<TicketDTO>> Create(CreateTicketDTO ticketInfo) {
+        public async Task<ActionResult<TicketDto>> Create(CreateTicketDto ticketInfo)
+        {
             var ticket = await _ticketService.CreateTicketAsync(ticketInfo);
             return CreatedAtAction(nameof(GetById), new { id = ticket.Id }, ticket);
         }
@@ -119,11 +123,12 @@ namespace MS_Lab.api
         /// <response code="404">Билет не найден</response>
         /// <response code="500">Ошибка сервера</response>
         [HttpPatch("{id}")]
-        [ProducesResponseType(typeof(TicketDTO), 200)]
+        [ProducesResponseType(typeof(TicketDto), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult<TicketDTO>> Update(string id, UpdateTicketDTO ticketInfo) {
+        public async Task<ActionResult<TicketDto>> Update(string id, UpdateTicketDto ticketInfo)
+        {
             var ticket = await _ticketService.UpdateTicketAsync(id, ticketInfo);
 
             return Ok(ticket);
@@ -144,7 +149,8 @@ namespace MS_Lab.api
         [ProducesResponseType(typeof(void), 200)]
         [ProducesResponseType(typeof(ErrorResponse), 404)]
         [ProducesResponseType(typeof(ErrorResponse), 500)]
-        public async Task<ActionResult> Delete(string id) {
+        public async Task<ActionResult> Delete(string id)
+        {
             await _ticketService.DeleteTicketAsync(id);
 
             return Ok();

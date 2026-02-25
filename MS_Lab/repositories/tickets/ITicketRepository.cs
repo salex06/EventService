@@ -8,7 +8,7 @@ namespace MS_Lab.repositories.tickets
         Task<IEnumerable<Ticket>> GetAllAsync();
         Task<Ticket?> GetByIdAsync(string id);
         Task<Ticket> CreateAsync(Ticket ticket);
-        Task<Ticket> UpdateAsync(Ticket ticket);
+        Task<Ticket?> UpdateAsync(Ticket ticket);
         Task DeleteAsync(string id);
         Task<bool> ExistsByIdAsync(string id);
         Task<long> GetSoldTicketNumberByEventIdAsync(string eventId);

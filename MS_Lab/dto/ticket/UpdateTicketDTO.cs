@@ -1,8 +1,7 @@
 ﻿namespace MS_Lab.dto.ticket
 {
-    public record UpdateTicketDTO
+    public record UpdateTicketDto
     {
-        //public string EventId { get; init; } = string.Empty;
-        public TicketOwnerDTO? TicketOwner { get; init; }
+        public TicketOwnerDto? TicketOwner { get; init; }
     }
 }

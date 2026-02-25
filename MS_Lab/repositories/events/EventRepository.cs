@@ -14,7 +14,8 @@ namespace MS_Lab.repositories.events
     {
         private readonly IMongoCollection<Event> _events;
         private readonly RepositoryConfig _repositoryConfig;
-        public EventRepository(IMongoDatabase db, IOptions<RepositoryConfig> settings) {
+        public EventRepository(IMongoDatabase db, IOptions<RepositoryConfig> settings)
+        {
             _events = db.GetCollection<Event>("events");
             _repositoryConfig = settings.Value;
         }
@@ -34,7 +35,8 @@ namespace MS_Lab.repositories.events
 
                 return await _events.Find(filter).FirstOrDefaultAsync();
             }
-            catch (FormatException) {
+            catch (FormatException)
+            {
                 return null;
             }
         }
@@ -61,7 +63,8 @@ namespace MS_Lab.repositories.events
 
                 return eventEntity;
             }
-            catch (FormatException) {
+            catch (FormatException)
+            {
                 return null;
             }
         }
@@ -73,12 +76,14 @@ namespace MS_Lab.repositories.events
                 var filter = Builders<Event>.Filter.Eq(t => t.Id, id);
                 await _events.DeleteOneAsync(filter);
             }
-            catch (FormatException) { 
+            catch (FormatException)
+            {
                 //It'll be better to log it
             }
         }
 
-        public async Task<bool> ExistsByIdAsync(string id) {
+        public async Task<bool> ExistsByIdAsync(string id)
+        {
             try
             {
                 var filter = Builders<Event>.Filter.Eq(t => t.Id, id);
@@ -90,7 +95,8 @@ namespace MS_Lab.repositories.events
 
                 return count > 0;
             }
-            catch (FormatException) {
+            catch (FormatException)
+            {
                 return false;
             }
         }

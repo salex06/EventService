@@ -2,7 +2,7 @@
 
 namespace MS_Lab.dto.events
 {
-    public record UpdateEventDTO
+    public record UpdateEventDto
     {
         public string? Id { get; set; }
         public string? Name { get; init; }
