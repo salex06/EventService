@@ -8,6 +8,7 @@ using MS_Lab.repositories.tickets;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using Microsoft.Extensions.Options;
+using MS_Lab.config;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,11 @@ builder.Services.AddScoped<IMongoDatabase>(sp =>
 
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDb"));
 builder.Services.AddScoped<MongoDbContext>();
+
+builder.Services.AddOptions<RepositoryConfig>()
+    .Bind(builder.Configuration.GetSection(RepositoryConfig.SectionName))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
 builder.Services.AddAutoMapper(cfg =>
 {

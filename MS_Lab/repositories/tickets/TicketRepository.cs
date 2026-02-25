@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MS_Lab.config;
 using MS_Lab.data;
 using MS_Lab.entities;
 
@@ -10,14 +12,16 @@ namespace MS_Lab.repositories.tickets
     public class TicketRepository : ITicketRepository
     {
         private readonly IMongoCollection<Ticket> _tickets;
-        public TicketRepository(IMongoDatabase db)
+        private readonly RepositoryConfig _repositoryConfig;
+        public TicketRepository(IMongoDatabase db, IOptions<RepositoryConfig> settings)
         {
             _tickets = db.GetCollection<Ticket>("tickets");
+            _repositoryConfig = settings.Value;
         }
         public async Task<IEnumerable<Ticket>> GetAllAsync() {
-            var filter = Builders<Ticket>.Filter.Empty;
-
-            return await _tickets.Find(filter).ToListAsync();
+            return await _tickets.Aggregate()
+                .Sample(_repositoryConfig.ObjectPerRequestLimit)
+                .ToListAsync();
         }
 
         public async Task<Ticket?> GetByIdAsync(string id) {
