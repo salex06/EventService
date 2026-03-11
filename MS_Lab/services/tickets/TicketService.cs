@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using MS_Lab.dto.ticket;
-using MS_Lab.exception;
 using MS_Lab.entities;
+using MS_Lab.exception;
 using MS_Lab.repositories.events;
 using MS_Lab.repositories.tickets;
-using Microsoft.Extensions.Logging;
 using MS_Lab.specification;
+using System.Text.Json;
 
 namespace MS_Lab.services.tickets
 {
@@ -15,32 +17,45 @@ namespace MS_Lab.services.tickets
         private readonly IEventRepository _eventRepository;
 
         private readonly IMapper _mapper;
+        private readonly IDistributedCache _cache;
 
-        public TicketService(ITicketRepository ticketRepository, IEventRepository eventRepository, IMapper mapper)
+        public TicketService(ITicketRepository ticketRepository, IEventRepository eventRepository, IMapper mapper, IDistributedCache cache)
         {
             _ticketRepository = ticketRepository;
             _eventRepository = eventRepository;
             _mapper = mapper;
+            _cache = cache;
         }
 
         public async Task<IEnumerable<TicketDto>> GetAllTicketsAsync(TicketFilterDto filter)
         {
             var spec = TicketSpecification.FromFilter(filter);
-
             var tickets = await _ticketRepository.GetAllAsync(spec);
-
             return _mapper.Map<IEnumerable<TicketDto>>(tickets);
         }
 
         public async Task<TicketDto> GetTicketByIdAsync(string id)
         {
+            string cacheKey = $"ticket:{id}";
+            var cached = await _cache.GetStringAsync(cacheKey);
+            if (cached != null)
+            {
+                return JsonSerializer.Deserialize<TicketDto>(cached)!;
+            }
+
             var ticket = await _ticketRepository.GetByIdAsync(id);
             if (ticket == null)
             {
                 throw new NotFoundException($"Билет с id={id} не найден");
             }
 
-            return _mapper.Map<TicketDto>(ticket);
+            var dto = _mapper.Map<TicketDto>(ticket);
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(7)
+            };
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
+            return dto;
         }
 
         public async Task<TicketDto> CreateTicketAsync(CreateTicketDto createTicketDTO)
@@ -54,12 +69,20 @@ namespace MS_Lab.services.tickets
             if (soldTicketNumber == foundEvent.TicketCount)
                 throw new BadRequestException("Все билеты проданы");
 
-            Ticket ticket = _mapper.Map<Ticket>(createTicketDTO);
+            var ticket = _mapper.Map<Ticket>(createTicketDTO);
             ticket.Event = foundEvent;
 
             var savedTicket = await _ticketRepository.CreateAsync(ticket);
+            var dto = _mapper.Map<TicketDto>(savedTicket);
 
-            return _mapper.Map<TicketDto>(savedTicket);
+            string cacheKey = $"ticket:{dto.Id}";
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(7)
+            };
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
+
+            return dto;
         }
 
         public async Task<TicketDto> UpdateTicketAsync(string id, UpdateTicketDto updateTicketDTO)
@@ -74,7 +97,17 @@ namespace MS_Lab.services.tickets
 
             _mapper.Map(updateTicketDTO, existingTicket);
             var updated = await _ticketRepository.UpdateAsync(existingTicket);
-            return _mapper.Map<TicketDto>(updated);
+            var dto = _mapper.Map<TicketDto>(updated);
+
+            // Обновляем кэш
+            string cacheKey = $"ticket:{dto.Id}";
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(7)
+            };
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
+
+            return dto;
         }
 
         public async Task DeleteTicketAsync(string id)
@@ -85,6 +118,7 @@ namespace MS_Lab.services.tickets
             }
 
             await _ticketRepository.DeleteAsync(id);
+            await _cache.RemoveAsync($"ticket:{id}");
         }
     }
 }

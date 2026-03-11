@@ -8,6 +8,7 @@ using MS_Lab.repositories.tickets;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using MS_Lab.config;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,6 +44,12 @@ builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilter>();
     options.Filters.Add<ApiExceptionFilterAttribute>();
+});
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetSection("Redis")["ConnectionString"];
+    options.InstanceName = "MSLab:"; // префикс для ключей
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -86,4 +93,7 @@ app.MapControllers();
 
 await app.RunAsync();
 
-public partial class Program { }
+public partial class Program 
+{
+    protected Program() { }
+}

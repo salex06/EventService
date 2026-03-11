@@ -38,6 +38,7 @@ namespace MS_Lab.Tests.Integration
                     {
                         ["MongoDb:DatabaseName"] = TestDatabaseName,
                         ["MongoDb:ConnectionString"] = "mongodb://root:password@localhost:27017",
+                        ["Redis:ConnectionString"] = "localhost:6379",
                         ["RepositorySettings:ObjectPerRequestLimit"] = "200000"
                     }!);
                 });
