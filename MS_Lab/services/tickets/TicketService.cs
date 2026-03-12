@@ -19,6 +19,9 @@ namespace MS_Lab.services.tickets
         private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
 
+        // `время жизни` кэша в минтуах
+        private readonly int _cacheExpirationMinutes = 5;
+
         public TicketService(ITicketRepository ticketRepository, IEventRepository eventRepository, IMapper mapper, IDistributedCache cache)
         {
             _ticketRepository = ticketRepository;
@@ -52,7 +55,7 @@ namespace MS_Lab.services.tickets
             var dto = _mapper.Map<TicketDto>(ticket);
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(7)
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
             };
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
             return dto;
@@ -78,7 +81,7 @@ namespace MS_Lab.services.tickets
             string cacheKey = $"ticket:{dto.Id}";
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(7)
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
             };
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
 
@@ -103,7 +106,7 @@ namespace MS_Lab.services.tickets
             string cacheKey = $"ticket:{dto.Id}";
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(7)
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
             };
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
 

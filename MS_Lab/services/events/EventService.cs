@@ -15,6 +15,9 @@ namespace MS_Lab.services.events
         private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
 
+        // `время жизни` кэша в минтуах
+        private readonly int _cacheExpirationMinutes = 5;
+
         public EventService(IEventRepository eventRepository, IMapper mapper, IDistributedCache cache)
         {
             _eventRepository = eventRepository;
@@ -49,10 +52,9 @@ namespace MS_Lab.services.events
 
             var dto = _mapper.Map<EventDto>(foundEvent);
 
-            // в кэш на 7 минут? вынести время в поле класса или конфигурацию? избавиться от `магического` числа
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(7)
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
             };
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
 
@@ -69,7 +71,7 @@ namespace MS_Lab.services.events
             string cacheKey = $"event:{dto.Id}";
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(7)
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
             };
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
 
@@ -91,7 +93,7 @@ namespace MS_Lab.services.events
             string cacheKey = $"event:{dto.Id}";
             var options = new DistributedCacheEntryOptions
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
             };
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
 
