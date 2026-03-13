@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Caching.Distributed;
 using MS_Lab.dto.events;
-using MS_Lab.exception;
 using MS_Lab.entities;
+using MS_Lab.exception;
 using MS_Lab.repositories.events;
 using MS_Lab.specification;
+using System.Text.Json;
 
 namespace MS_Lab.services.events
 {
@@ -11,11 +13,16 @@ namespace MS_Lab.services.events
     {
         private readonly IEventRepository _eventRepository;
         private readonly IMapper _mapper;
+        private readonly IDistributedCache _cache;
 
-        public EventService(IEventRepository eventRepository, IMapper mapper)
+        // `время жизни` кэша в минтуах
+        private readonly int _cacheExpirationMinutes = 5;
+
+        public EventService(IEventRepository eventRepository, IMapper mapper, IDistributedCache cache)
         {
             _eventRepository = eventRepository;
             _mapper = mapper;
+            _cache = cache;
         }
 
         public async Task<IEnumerable<EventDto>> GetAllEventsAsync(EventFilterDto filter)
@@ -29,22 +36,46 @@ namespace MS_Lab.services.events
 
         public async Task<EventDto> GetEventByIdAsync(string id)
         {
+            string cacheKey = $"event:{id}";
+
+            var cached = await _cache.GetStringAsync(cacheKey);
+            if (cached != null)
+            {
+                return JsonSerializer.Deserialize<EventDto>(cached)!;
+            }
+
             var foundEvent = await _eventRepository.GetByIdAsync(id);
             if (foundEvent == null)
             {
                 throw new NotFoundException($"Событие с id={id} не найдено");
             }
 
-            return _mapper.Map<EventDto>(foundEvent);
+            var dto = _mapper.Map<EventDto>(foundEvent);
+
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
+            };
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
+
+            return dto;
         }
+
 
         public async Task<EventDto> CreateEventAsync(CreateEventDto createEventDTO)
         {
             var eventInfo = _mapper.Map<Event>(createEventDTO);
-
             var savedEvent = await _eventRepository.CreateAsync(eventInfo);
+            var dto = _mapper.Map<EventDto>(savedEvent);
 
-            return _mapper.Map<EventDto>(savedEvent);
+            string cacheKey = $"event:{dto.Id}";
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
+            };
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
+
+            return dto;
         }
 
         public async Task<EventDto> UpdateEventAsync(string eventId, UpdateEventDto updateEventDTO)
@@ -57,7 +88,16 @@ namespace MS_Lab.services.events
             _mapper.Map(updateEventDTO, existingEvent);
 
             var updatedEvent = await _eventRepository.UpdateAsync(existingEvent);
-            return _mapper.Map<EventDto>(updatedEvent);
+            var dto = _mapper.Map<EventDto>(updatedEvent);
+
+            string cacheKey = $"event:{dto.Id}";
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
+            };
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
+
+            return dto;
         }
 
         public async Task DeleteEventAsync(string id)
@@ -68,6 +108,7 @@ namespace MS_Lab.services.events
             }
 
             await _eventRepository.DeleteAsync(id);
+            await _cache.RemoveAsync($"event:{id}");
         }
     }
 }
