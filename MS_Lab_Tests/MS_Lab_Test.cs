@@ -150,23 +150,14 @@ namespace MS_Lab.Tests.Integration
         /// <summary>
         /// Конкурентное добавление событий через POST /api/event.
         /// </summary>
-        private async Task AddEventsConcurrently(List<CreateEventDto> events, int maxParallelism = 50)
-        {
-            using var semaphore = new SemaphoreSlim(maxParallelism);
-            var tasks = events.Select(async e =>
-            {
-                await semaphore.WaitAsync();
-                try
-                {
-                    var response = await _client.PostAsJsonAsync("/api/event", e);
-                    response.EnsureSuccessStatusCode();
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
+        private async Task AddEventsConcurrently(List<CreateEventDto> events, int maxParallelism = 60)
+        { 
+            await Parallel.ForEachAsync(
+                Enumerable.Range(0, events.Count),
+                new ParallelOptions { MaxDegreeOfParallelism = maxParallelism },
+                async (i, ct) => {
+                    await _client.PostAsJsonAsync("/api/event", events[i]);
             });
-            await Task.WhenAll(tasks);
         }
 
         /// <summary>

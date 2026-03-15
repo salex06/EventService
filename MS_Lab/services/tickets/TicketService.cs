@@ -102,13 +102,8 @@ namespace MS_Lab.services.tickets
             var updated = await _ticketRepository.UpdateAsync(existingTicket);
             var dto = _mapper.Map<TicketDto>(updated);
 
-            // Обновляем кэш
             string cacheKey = $"ticket:{dto.Id}";
-            var options = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
-            };
-            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
+            await _cache.RemoveAsync(cacheKey);
 
             return dto;
         }

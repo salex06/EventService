@@ -86,16 +86,12 @@ namespace MS_Lab.services.events
 
             updateEventDTO.Id = eventId;
             _mapper.Map(updateEventDTO, existingEvent);
-
+            
             var updatedEvent = await _eventRepository.UpdateAsync(existingEvent);
             var dto = _mapper.Map<EventDto>(updatedEvent);
 
             string cacheKey = $"event:{dto.Id}";
-            var options = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
-            };
-            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
+            await _cache.RemoveAsync(cacheKey);
 
             return dto;
         }
