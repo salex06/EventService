@@ -151,5 +151,16 @@ namespace MS_Lab.api
             return Ok();
         }
 
+
+        [HttpGet("danger")]
+        public async Task<ActionResult> Get500() {
+            return StatusCode(500);
+        }
+
+        [HttpGet("want_sleep")]
+        public async Task<ActionResult> WaitABit() {
+            Thread.Sleep(2000);
+            return Ok();
+        }
     }
 }
