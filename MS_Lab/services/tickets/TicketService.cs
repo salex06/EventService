@@ -7,12 +7,16 @@ using MS_Lab.exception;
 using MS_Lab.repositories.events;
 using MS_Lab.repositories.tickets;
 using MS_Lab.specification;
+using Prometheus;
 using System.Text.Json;
 
 namespace MS_Lab.services.tickets
 {
     public class TicketService : ITicketService
     {
+        private static readonly Counter createdTicketsCounter = Metrics
+    .CreateCounter("created_tickets_total", "Created tickets count");
+
         private readonly ITicketRepository _ticketRepository;
         private readonly IEventRepository _eventRepository;
 
@@ -85,6 +89,7 @@ namespace MS_Lab.services.tickets
             };
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
 
+            createdTicketsCounter.Inc();
             return dto;
         }
 
