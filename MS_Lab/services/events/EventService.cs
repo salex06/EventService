@@ -5,12 +5,16 @@ using MS_Lab.entities;
 using MS_Lab.exception;
 using MS_Lab.repositories.events;
 using MS_Lab.specification;
+using Prometheus;
 using System.Text.Json;
 
 namespace MS_Lab.services.events
 {
     public class EventService : IEventService
     {
+        private static readonly Counter createdEventsCounter = Metrics
+            .CreateCounter("created_events_total", "Created events count");
+
         private readonly IEventRepository _eventRepository;
         private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
@@ -75,6 +79,7 @@ namespace MS_Lab.services.events
             };
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
 
+            createdEventsCounter.Inc();
             return dto;
         }
 
