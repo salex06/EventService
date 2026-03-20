@@ -1,40 +1,5 @@
 services:
-  # postgres:
-  #   image: postgres:17-alpine
-  #   container_name: ms_lab_db
-  #   environment:
-  #     POSTGRES_DB: ms_lab_db
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: postgres
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   healthcheck:
-  #     test: pg_isready -U postgres -d ms_lab_db
-  #     interval: 15s
-  #     timeout: 15s
-  #     retries: 5
-  #   restart: unless-stopped
-
-
-  # liquibase:
-  #   container_name: ms_lab_migrations
-  #   image: liquibase/liquibase:4.29
-  #   command:
-  #       - --searchPath=/changesets
-  #       - --changelog-file=master.xml
-  #       - --driver=org.postgresql.Driver
-  #       - --url=jdbc:postgresql://postgres:5432/ms_lab_db
-  #       - --username=postgres
-  #       - --password=postgres
-  #       - update 
-  #   volumes:
-  #       - ./migrations:/changesets
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-
+  # Database
   mongodb:
     image: mongo:4.4-focal
     container_name: ms_lab_mongodb
@@ -46,6 +11,7 @@ services:
     volumes:
       - mongodb_data:/data/db
 
+  # Cache
   redis:
     image: redis:7.2-alpine
     container_name: ms_lab_redis
@@ -55,21 +21,54 @@ services:
       - redis_data:/data
     restart: unless-stopped
 
-  ms_lab:
+  # Metrics and visualization
+  grafana:
+    image: grafana/grafana:11.6.11-ubuntu
+    container_name: ms_lab_grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ms_lab_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - ms_lab1
+      - ms_lab2 
+
+  # Main program
+  # 1st instance
+  ms_lab1:
     build:
       context: .
       dockerfile: MS_Lab/Dockerfile
-    container_name: ms_lab_backend
+    container_name: ms_lab_backend1
     ports:
-      - "5258:8080"
+       - "8080:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ms_lab_db;Username=postgres;Password=postgres
-    # depends_on:
-    #   liquibase:
-    #     condition: service_completed_successfully
+       - ASPNETCORE_ENVIRONMENT=Development
+    restart: unless-stopped
+  
+  # 2nd instance
+  ms_lab2:
+    build:
+      context: .
+      dockerfile: MS_Lab/Dockerfile
+    container_name: ms_lab_backend2
+    ports:
+       - "8081:8080"
+    environment:
+       - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
 
 volumes:
   mongodb_data:
   redis_data:
+  grafana_data: 

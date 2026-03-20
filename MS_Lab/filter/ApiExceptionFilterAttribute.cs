@@ -31,7 +31,7 @@ namespace MS_Lab.filter
 
                 default:
                     response.StatusCode = 500;
-                    response.Message = "Внутренняя ошибка сервера";
+                    response.Message = $"Внутренняя ошибка сервера: {exception.Message}";
                     break;
             }
 
