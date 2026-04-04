@@ -11,6 +11,12 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
 using MS_Lab.config;
 using Prometheus;
+using Confluent.Kafka;
+using System.Text.Json;
+using MS_Lab.kafka.producer;
+using MS_Lab.kafka.consumer;
+using static Prometheus.MetricServerMiddleware;
+using static Confluent.Kafka.ConfigPropertyNames;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,6 +80,49 @@ builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 
+// Kafka
+builder.Services.AddOptions<ProducerSettings>()
+    .Bind(builder.Configuration.GetSection("KafkaProducer"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+
+builder.Services.AddSingleton(sp =>
+{
+    var kafkaProducerSettings = sp.GetRequiredService<IOptions<ProducerSettings>>().Value;
+    var config = new ProducerConfig
+    {
+        BootstrapServers = kafkaProducerSettings.BootstrapServers,
+        Acks = kafkaProducerSettings.Acks,
+        EnableIdempotence = kafkaProducerSettings.EnableIdempotence,
+        MessageSendMaxRetries = kafkaProducerSettings.MessageSendMaxRetries,
+        RetryBackoffMs = kafkaProducerSettings.RetryBackoffMs,
+        RequestTimeoutMs = kafkaProducerSettings.RequestTimeoutMs,
+        BatchSize = kafkaProducerSettings.BatchSize,
+        LingerMs = kafkaProducerSettings.LingerMs,
+        CompressionType = kafkaProducerSettings.CompressionType,
+        MaxInFlight = kafkaProducerSettings.MaxInFlightRequestsPerConnection,
+        ConnectionsMaxIdleMs = kafkaProducerSettings.ConnectionMaxIdleMs,
+        ReconnectBackoffMs = kafkaProducerSettings.ReconnectBackoffMs,
+        ReconnectBackoffMaxMs = kafkaProducerSettings.ReconnectBackoffMaxMs,
+        AllowAutoCreateTopics = kafkaProducerSettings.AllowAutoCreateTopics
+    };
+
+    var producerBuilder = new ProducerBuilder<string, string>(config);
+    producerBuilder.SetErrorHandler((_, error) =>
+    {
+        var logger = sp.GetRequiredService<ILogger<IProducer<string, string>>>();
+        logger.LogError("Kafka producer error: {Error}", error.Reason);
+    });
+
+    return producerBuilder.Build();
+});
+builder.Services.AddScoped<IKafkaMessageProducer, KafkaMessageProducer>();
+
+builder.Services.AddOptions<ConsumerSettings>()
+    .Bind(builder.Configuration.GetSection("KafkaConsumer"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+builder.Services.AddHostedService<ConsumerService>();
 
 var app = builder.Build();
 
@@ -103,6 +152,13 @@ app.MapControllers();
 app.UseMetricServer();
 app.UseHttpMetrics();
 
+//await Task.Run(async () =>
+//{
+//    await Task.Delay(10000); // Даем хосту запуститься
+//    using var scope = app.Services.CreateScope();
+//    var consumer = scope.ServiceProvider.GetRequiredService<ConsumerService>();
+//    await consumer.StartAsync(CancellationToken.None);
+//});
 
 await app.RunAsync();
 public partial class Program 

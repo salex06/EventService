@@ -37,6 +37,15 @@ namespace MS_Lab.entities
 
         [BsonElement("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [BsonElement("confirmator_id")]
+        public string ConfirmatorId { get; set; } = "";
+
+        [BsonElement("confirm_status")]
+        public ConfirmStatus ConfirmStatus { get; set; } = ConfirmStatus.NOT_CONFIRMED;
+
+        [BsonElement("confirmed_at")]
+        public DateTime? ConfirmedAt { get; set; }
     }
 
 }

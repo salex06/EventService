@@ -1,4 +1,5 @@
-﻿using MS_Lab.dto.events;
+﻿using MS_Lab.dto;
+using MS_Lab.dto.events;
 
 namespace MS_Lab.services.events
 {
@@ -9,6 +10,7 @@ namespace MS_Lab.services.events
         Task<EventDto> CreateEventAsync(CreateEventDto createEventDTO);
         Task<EventDto> UpdateEventAsync(string eventId, UpdateEventDto updateEventDTO);
         Task DeleteEventAsync(string id);
+        Task UpdateConfirmationAsync(ConfirmedObjectDto confirmedObjectDto);
     }
 
 }

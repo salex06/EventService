@@ -1,4 +1,5 @@
-﻿using MS_Lab.enums;
+﻿using MS_Lab.entities;
+using MS_Lab.enums;
 
 namespace MS_Lab.dto.events
 {
@@ -13,5 +14,7 @@ namespace MS_Lab.dto.events
         public DateTime EndTimeUTC { get; init; }
         public int TicketCount { get; init; }
         public int Price { get; init; }
+        public ConfirmStatus ConfirmStatus { get; init; }
+        public DateTime? ConfirmedAt { get; init; }
     }
 }

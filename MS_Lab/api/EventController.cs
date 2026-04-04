@@ -1,7 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using MS_Lab.dto;
 using MS_Lab.dto.events;
+using MS_Lab.entities;
 using MS_Lab.filter;
+using MS_Lab.kafka.producer;
 using MS_Lab.services.events;
+using System.Text.Json;
 
 namespace MS_Lab.api
 {
@@ -11,10 +16,15 @@ namespace MS_Lab.api
     {
 
         private readonly IEventService _eventService;
-
-        public EventController(IEventService eventService)
+        private readonly IKafkaMessageProducer _kafkaMessageProducer;
+        private readonly ProducerSettings _producerSettings;
+        public EventController(IEventService eventService, 
+                               IKafkaMessageProducer kafkaMessageProducer,
+                               IOptions<ProducerSettings> producerSettings)
         {
             _eventService = eventService;
+            _kafkaMessageProducer = kafkaMessageProducer;
+            _producerSettings = producerSettings.Value;
         }
 
         /// <summary>
@@ -92,6 +102,8 @@ namespace MS_Lab.api
         {
             var createdEvent = await _eventService.CreateEventAsync(eventInfo);
 
+            SendConfirmationRequest(createdEvent, eventInfo.ConfirmatorId);
+
             return CreatedAtAction(nameof(GetById), new { id = createdEvent.Id }, createdEvent);
         }
 
@@ -153,14 +165,27 @@ namespace MS_Lab.api
 
 
         [HttpGet("danger")]
-        public async Task<ActionResult> Get500() {
+        public ActionResult Get500() {
             return StatusCode(500);
         }
 
         [HttpGet("want_sleep")]
-        public async Task<ActionResult> WaitABit() {
+        public ActionResult WaitABit() {
             Thread.Sleep(2000);
             return Ok();
+        }
+
+        private void SendConfirmationRequest(EventDto createdEvent, string confirmatorId) {
+            RegObjectDto regObject = new RegObjectDto()
+            {
+                Type = ObjectType.Event,
+                ObjectId = createdEvent.Id,
+                ConfirmatorId = confirmatorId
+            };
+
+            string message = JsonSerializer.Serialize(regObject);
+
+            _kafkaMessageProducer.SendMessageAsync(_producerSettings.TopicName, message);
         }
     }
 }

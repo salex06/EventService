@@ -1,8 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using MS_Lab.dto;
 using MS_Lab.dto.events;
 using MS_Lab.dto.ticket;
 using MS_Lab.filter;
+using MS_Lab.kafka.producer;
 using MS_Lab.services.tickets;
+using System.Text.Json;
 
 namespace MS_Lab.api
 {
@@ -12,10 +16,17 @@ namespace MS_Lab.api
     {
 
         private readonly ITicketService _ticketService;
-
-        public TicketController(ITicketService ticketService)
+        private readonly IKafkaMessageProducer _kafkaMessageProducer;
+        private readonly ProducerSettings _producerSettings;
+        public TicketController(
+            ITicketService ticketService, 
+            IKafkaMessageProducer producer,
+            IOptions<ProducerSettings> producerSettings)
         {
             _ticketService = ticketService;
+            _kafkaMessageProducer = producer;
+            _producerSettings = producerSettings.Value;
+
         }
 
         /// <summary>
@@ -97,6 +108,9 @@ namespace MS_Lab.api
         public async Task<ActionResult<TicketDto>> Create(CreateTicketDto ticketInfo)
         {
             var ticket = await _ticketService.CreateTicketAsync(ticketInfo);
+
+            SendConfirmationRequest(ticket, ticketInfo.ConfirmatorId);
+
             return CreatedAtAction(nameof(GetById), new { id = ticket.Id }, ticket);
         }
 
@@ -154,6 +168,20 @@ namespace MS_Lab.api
             await _ticketService.DeleteTicketAsync(id);
 
             return Ok();
+        }
+
+
+        private void SendConfirmationRequest(TicketDto createdTicket, string confirmatorId)
+        {
+            RegObjectDto regObject = new RegObjectDto()
+            {
+                Type = ObjectType.Ticket,
+                ObjectId = createdTicket.Id,
+                ConfirmatorId = confirmatorId
+            };
+            string message = JsonSerializer.Serialize(regObject);
+
+            _kafkaMessageProducer.SendMessageAsync(_producerSettings.TopicName, message);
         }
 
     }

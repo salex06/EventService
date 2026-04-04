@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Caching.Distributed;
+using MS_Lab.dto;
 using MS_Lab.dto.events;
 using MS_Lab.entities;
 using MS_Lab.exception;
@@ -110,6 +111,18 @@ namespace MS_Lab.services.events
 
             await _eventRepository.DeleteAsync(id);
             await _cache.RemoveAsync($"event:{id}");
+        }
+
+        public async Task UpdateConfirmationAsync(ConfirmedObjectDto confirmedObjectDto) {
+            var objId = confirmedObjectDto.ObjId;
+            var foundEvent = await _eventRepository.GetByIdAsync(objId);
+            if (foundEvent != null) {
+                foundEvent.ConfirmStatus = ConfirmStatus.CONFFIRMED;
+                foundEvent.ConfirmedAt = confirmedObjectDto.ConfirmDateTime;
+                foundEvent.ConfirmatorId = confirmedObjectDto.ConfirmatorId;
+
+                await _eventRepository.UpdateAsync(foundEvent);
+            }
         }
     }
 }

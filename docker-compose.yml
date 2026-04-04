@@ -40,35 +40,87 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     depends_on:
-      - ms_lab1
-      - ms_lab2 
+      - ms_object_service
 
   # Main program
-  # 1st instance
-  ms_lab1:
+  ms_object_service:
     build:
-      context: .
-      dockerfile: MS_Lab/Dockerfile
-    container_name: ms_lab_backend1
+      context: ./MS_Lab
+      dockerfile: Dockerfile
+    container_name: ms_lab_object_service
     ports:
        - "8080:8080"
     environment:
        - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
-  
-  # 2nd instance
-  ms_lab2:
+    depends_on:
+       - mongodb
+       - kafka
+       - kafka-ui
+       - redis 
+
+  ms_client_service:
     build:
-      context: .
-      dockerfile: MS_Lab/Dockerfile
-    container_name: ms_lab_backend2
+      context: ./ClientService
+      dockerfile: Dockerfile
+    container_name: ms_lab_client_service
     ports:
-       - "8081:8080"
+       - "8090:8080"
     environment:
        - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
+    depends_on:
+       - mongodb
+       - kafka
+       - kafka-ui
+       - redis 
 
+  # Kafka
+  kafka:
+    image: apache/kafka:3.8.0
+    hostname: kafka
+    container_name: ms_lab_kafka
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_FORMAT_LOG_DIRS: "true"
+      KAFKA_LOG_DIRS: /var/lib/kafka/data
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "nc", "-z", "kafka", "9092"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+  
+  # Kafka UI
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: ms_lab_kafka-ui
+    ports:
+      - "8079:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      #KAFKA_CLUSTERS_0_JMXPORT: 9997
+    depends_on:
+      kafka:
+        condition: service_healthy
+         
 volumes:
   mongodb_data:
   redis_data:
   grafana_data: 
+  kafka_data:  

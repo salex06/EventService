@@ -12,10 +12,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["MS_Lab/MS_Lab.csproj", "MS_Lab/"]
-RUN dotnet restore "./MS_Lab/MS_Lab.csproj"
+COPY ["MS_Lab.csproj", "."]
+RUN dotnet restore "./MS_Lab.csproj"
 COPY . .
-WORKDIR "/src/MS_Lab"
+WORKDIR "/src/."
 RUN dotnet build "./MS_Lab.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Этот этап используется для публикации проекта службы, который будет скопирован на последний этап
