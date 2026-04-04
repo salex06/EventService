@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using MS_Lab.dto;
 using MS_Lab.dto.ticket;
 using MS_Lab.entities;
 using MS_Lab.exception;
@@ -122,6 +123,20 @@ namespace MS_Lab.services.tickets
 
             await _ticketRepository.DeleteAsync(id);
             await _cache.RemoveAsync($"ticket:{id}");
+        }
+
+        public async Task UpdateConfirmationAsync(ConfirmedObjectDto confirmedObjectDto)
+        {
+            var objId = confirmedObjectDto.ObjId;
+            var foundTicket = await _ticketRepository.GetByIdAsync(objId);
+            if (foundTicket != null)
+            {
+                foundTicket.ConfirmStatus = ConfirmStatus.CONFFIRMED;
+                foundTicket.ConfirmedAt = confirmedObjectDto.ConfirmDateTime;
+                foundTicket.ConfirmatorId = confirmedObjectDto.ConfirmatorId;
+
+                await _ticketRepository.UpdateAsync(foundTicket);
+            }
         }
     }
 }

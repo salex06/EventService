@@ -14,5 +14,8 @@ namespace ClientService.entity
 
         [BsonElement("email")]
         public string Email { get; set; } = string.Empty;
+
+        [BsonElement("registered_objects")]
+        public int RegisteredObjects { get; set; } = 0;
     }
 }

@@ -28,5 +28,8 @@ namespace MS_Lab.dto.events
 
         [JsonRequired]
         public int Price { get; init; }
+
+        [JsonRequired]
+        public string ConfirmatorId { get; init; } = "";
     }
 }

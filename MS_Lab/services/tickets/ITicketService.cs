@@ -1,4 +1,5 @@
-﻿using MS_Lab.dto.ticket;
+﻿using MS_Lab.dto;
+using MS_Lab.dto.ticket;
 
 namespace MS_Lab.services.tickets
 {
@@ -9,5 +10,6 @@ namespace MS_Lab.services.tickets
         Task<TicketDto> CreateTicketAsync(CreateTicketDto createTicketDTO);
         Task<TicketDto> UpdateTicketAsync(string id, UpdateTicketDto updateTicketDTO);
         Task DeleteTicketAsync(string id);
+        Task UpdateConfirmationAsync(ConfirmedObjectDto confirmedObjectDto);
     }
 }

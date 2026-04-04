@@ -1,4 +1,6 @@
-﻿namespace MS_Lab.dto.ticket
+﻿using MS_Lab.entities;
+
+namespace MS_Lab.dto.ticket
 {
     public record TicketDto
     {
@@ -7,5 +9,7 @@
         public string TicketNumber { get; init; } = string.Empty;
         public DateTime PurchaseDate { get; init; }
         public TicketOwnerDto? TicketOwner { get; init; }
+        public ConfirmStatus ConfirmStatus { get; init; }
+        public DateTime? ConfirmedAt { get; init; }
     }
 }

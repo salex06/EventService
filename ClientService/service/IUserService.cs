@@ -13,5 +13,6 @@ namespace ClientService.service
         public Task<UserDto> UpdateUserAsync(UpdateUserDto updateUserDto);
 
         public Task<bool> DeleteUserAsync(string id);
+        public Task ConfirmObject(RegObjectDto regObjectDto);
     }
 }

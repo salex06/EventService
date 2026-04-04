@@ -2,7 +2,11 @@
 using ClientService.dto;
 using ClientService.entity;
 using ClientService.exception;
+using ClientService.kafka.producer;
 using ClientService.repository;
+using Microsoft.Extensions.Options;
+using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace ClientService.service.impl
 {
@@ -10,9 +14,17 @@ namespace ClientService.service.impl
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        public UserService(IUserRepository userRepository, IMapper mapper) {
+        private readonly IKafkaMessageProducer _producer;
+        private readonly ProducerSettings _producerSettings;
+        public UserService(
+            IUserRepository userRepository, 
+            IKafkaMessageProducer producer, 
+            IOptions<ProducerSettings> producerSettings,
+            IMapper mapper) {
             _userRepository = userRepository;
             _mapper = mapper;
+            _producer = producer;
+            _producerSettings = producerSettings.Value;
         }
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
         {
@@ -61,6 +73,25 @@ namespace ClientService.service.impl
                 throw new NotFoundException($"Пользователь с id={id} не найден");
 
             return true;
+        }
+
+        public async Task ConfirmObject(RegObjectDto regObjectDto) {
+            var userId = regObjectDto.ConfirmatorId;
+            var user = await _userRepository.GetUserAsync(userId);
+            if (user != null) {
+                user.RegisteredObjects++;
+                await _userRepository.UpdateUserAsync(user);
+
+                RegObjectResponseDto res = new RegObjectResponseDto
+                {
+                    ConfirmatorId = userId,
+                    ObjId = regObjectDto.ObjectId,
+                    ObjType = regObjectDto.Type,
+                    ConfirmDateTime = DateTime.UtcNow
+                };
+
+                await _producer.SendMessageAsync(_producerSettings.TopicName, JsonSerializer.Serialize(res));
+            }
         }
     }
 }

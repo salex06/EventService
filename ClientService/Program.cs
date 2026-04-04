@@ -1,26 +1,21 @@
-using MS_Lab.profiles;
-using MS_Lab.filter;
-using MS_Lab.services.tickets;
-using MS_Lab.services.events;
-using MS_Lab.data;
-using MS_Lab.repositories.events;
-using MS_Lab.repositories.tickets;
-using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
-using MS_Lab.config;
-using Prometheus;
+using ClientService.db;
+using ClientService.filter;
+using ClientService.kafka.consumer;
+using ClientService.kafka.producer;
+using ClientService.profile;
+using ClientService.repository;
+using ClientService.repository.impl;
+using ClientService.service;
+using ClientService.service.impl;
 using Confluent.Kafka;
-using System.Text.Json;
-using MS_Lab.kafka.producer;
-using MS_Lab.kafka.consumer;
-using static Prometheus.MetricServerMiddleware;
-using static Confluent.Kafka.ConfigPropertyNames;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Mongo
+// MongoDB
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
     var settings = sp.GetRequiredService<IOptions<MongoDbSettings>>().Value;
@@ -35,50 +30,38 @@ builder.Services.AddScoped<IMongoDatabase>(sp =>
 builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDb"));
 builder.Services.AddScoped<MongoDbContext>();
 
-// Custom config
-builder.Services.AddOptions<RepositoryConfig>()
-    .Bind(builder.Configuration.GetSection(RepositoryConfig.SectionName))
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
+// Repository
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// Service
+builder.Services.AddScoped<IUserService, UserService>();
+
+// Controllers
+builder.Services.AddControllers();
+
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+// Metrics 
+builder.Services.AddMetrics();
+builder.Services.AddHealthChecks();
 
 // Mapper
 builder.Services.AddAutoMapper(cfg =>
 {
-    cfg.AddProfile<EventProfile>();
-    cfg.AddProfile<TicketProfile>();
+    cfg.AddProfile<UserProfile>();
 }, typeof(Program).Assembly);
 
 // Exception handlers
 builder.Services.AddControllers(options =>
 {
-    options.Filters.Add<ValidationFilter>();
     options.Filters.Add<ApiExceptionFilterAttribute>();
 });
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
     options.SuppressModelStateInvalidFilter = true;
 });
-
-// Redis
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration.GetSection("Redis")["ConnectionString"];
-    options.InstanceName = "MSLab:"; // РїСЂРµС„РёРєСЃ РґР»СЏ РєР»СЋС‡РµР№
-});
-
-// Metrics and visualization
-builder.Services.AddMetrics();
-builder.Services.AddHealthChecks();
-
-// Swagger
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// Injected objects
-builder.Services.AddScoped<ITicketService, TicketService>();
-builder.Services.AddScoped<IEventService, EventService>();
-builder.Services.AddScoped<ITicketRepository, TicketRepository>();
-builder.Services.AddScoped<IEventRepository, EventRepository>();
 
 // Kafka
 builder.Services.AddOptions<ProducerSettings>()
@@ -126,22 +109,11 @@ builder.Services.AddHostedService<ConsumerService>();
 
 var app = builder.Build();
 
-//Swagger
-app.UseSwagger();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MS Lab API V1");
-});
-
-// Exception handling
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
-}
-else
-{
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 // Controllers
@@ -154,14 +126,10 @@ app.UseHttpMetrics();
 
 //await Task.Run(async () =>
 //{
-//    await Task.Delay(10000); // Р”Р°РµРј С…РѕСЃС‚Сѓ Р·Р°РїСѓСЃС‚РёС‚СЊСЃСЏ
+//    await Task.Delay(10000); // Даем хосту запуститься
 //    using var scope = app.Services.CreateScope();
 //    var consumer = scope.ServiceProvider.GetRequiredService<ConsumerService>();
 //    await consumer.StartAsync(CancellationToken.None);
 //});
 
-await app.RunAsync();
-public partial class Program 
-{
-    protected Program() { }
-}
+app.Run();
