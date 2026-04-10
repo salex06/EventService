@@ -2,6 +2,7 @@
 using ClientService.service;
 using Confluent.Kafka;
 using Microsoft.Extensions.Options;
+using Prometheus;
 using System.Text.Json;
 using System.Threading;
 using static Prometheus.MetricServerMiddleware;
@@ -13,6 +14,9 @@ namespace ClientService.kafka.consumer
         private readonly ConsumerSettings _consumerSettings;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly string _topic;
+
+        private static readonly Counter receivedObjecsCounter = Metrics
+.CreateCounter("client_serv_obj_received", "Received objects count");
 
         public ConsumerService(
             IServiceScopeFactory scopeFactory,
@@ -77,11 +81,15 @@ namespace ClientService.kafka.consumer
             {
                 var data = JsonSerializer.Deserialize<RegObjectDto>(message);
                 if (data != null)
+                {
                     using (var scope = _scopeFactory.CreateScope())
                     {
                         var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
                         await userService.ConfirmObject(data);
                     }
+
+                    receivedObjecsCounter.Inc();
+                }
             }
             catch (Exception)
             {

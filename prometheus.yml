@@ -6,9 +6,9 @@ scrape_configs:
   - job_name: 'worker1'
     static_configs:
       - targets: 
-        - 'ms_lab1:8080'
+        - 'ms_client_service:8080'
   
   - job_name: 'worker2'
     static_configs:
       - targets:
-        - 'ms_lab2:8080'    
+        - 'ms_object_service:8080'    

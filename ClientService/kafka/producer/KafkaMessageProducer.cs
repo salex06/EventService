@@ -1,9 +1,13 @@
 ﻿using Confluent.Kafka;
+using Prometheus;
 
 namespace ClientService.kafka.producer
 {
     public class KafkaMessageProducer : IKafkaMessageProducer
     {
+        private static readonly Counter sentObjectsCounter = Metrics
+.CreateCounter("client_serv_obj_sent", "Confirmed objects count");
+
         private readonly IProducer<string, string> _producer;
         public KafkaMessageProducer(IProducer<string, string> producer)
         {
@@ -21,6 +25,8 @@ namespace ClientService.kafka.producer
                 };
 
                 await _producer.ProduceAsync(topic, kafkaMessage);
+
+                sentObjectsCounter.Inc();
 
                 return true;
             }
