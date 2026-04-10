@@ -1,9 +1,13 @@
 ﻿using Confluent.Kafka;
+using Prometheus;
 
 namespace MS_Lab.kafka.producer
 {
     public class KafkaMessageProducer : IKafkaMessageProducer
     {
+        private static readonly Counter requestedObjectsCounter = Metrics
+.CreateCounter("obj_serv_obj_requested", "Requested for confirmation object count");
+
         private readonly IProducer<string, string> _producer;
         public KafkaMessageProducer(IProducer<string, string> producer)
         {
@@ -21,6 +25,8 @@ namespace MS_Lab.kafka.producer
                 };
 
                 await _producer.ProduceAsync(topic, kafkaMessage);
+
+                requestedObjectsCounter.Inc();
 
                 return true;
             }

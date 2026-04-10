@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using MS_Lab.dto;
 using MS_Lab.services.events;
 using MS_Lab.services.tickets;
+using Prometheus;
 using System.Text.Json;
 using static Prometheus.MetricServerMiddleware;
 
@@ -13,6 +14,9 @@ namespace MS_Lab.kafka.consumer
         private readonly ConsumerSettings _consumerSettings;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly string _topic;
+
+        private static readonly Counter receivedCounter = Metrics
+.CreateCounter("obj_serv_obj_received", "Received object confirmation count");
 
         public ConsumerService(
             IServiceScopeFactory scopeFactory,
@@ -96,6 +100,8 @@ namespace MS_Lab.kafka.consumer
                         await ticketService.UpdateConfirmationAsync(data);
                     }
                 }
+
+                receivedCounter.Inc();
             }
             catch (Exception)
             {
