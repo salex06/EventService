@@ -10,6 +10,8 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=password
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - ms_network
 
   # Cache
   redis:
@@ -20,6 +22,8 @@ services:
     volumes:
       - redis_data:/data
     restart: unless-stopped
+    networks:
+      - ms_network
 
   # Metrics and visualization
   grafana:
@@ -31,6 +35,8 @@ services:
       - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
+    networks:
+      - ms_network
 
   prometheus:
     image: prom/prometheus:latest
@@ -41,6 +47,8 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     depends_on:
       - ms_object_service
+    networks:
+      - ms_network
 
   # Main program
   ms_object_service:
@@ -48,8 +56,8 @@ services:
       context: ./MS_Lab
       dockerfile: Dockerfile
     container_name: ms_object_service
-    ports:
-       - "8080:8080"
+    expose:
+       - "8080"
     environment:
        - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
@@ -58,14 +66,17 @@ services:
        - kafka
        - kafka-ui
        - redis 
+    networks:
+      - ms_network
+    
 
   ms_client_service:
     build:
       context: ./ClientService
       dockerfile: Dockerfile
     container_name: ms_client_service
-    ports:
-       - "8090:8080"
+    expose:
+       - "8080"
     environment:
        - ASPNETCORE_ENVIRONMENT=Development
     restart: unless-stopped
@@ -74,6 +85,9 @@ services:
        - kafka
        - kafka-ui
        - redis 
+    networks:
+      - ms_network
+  
 
   # Kafka
   kafka:
@@ -104,6 +118,8 @@ services:
       interval: 20s
       timeout: 10s
       retries: 5
+    networks:
+      - ms_network
   
   # Kafka UI
   kafka-ui:
@@ -118,7 +134,45 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
-         
+    networks:
+      - ms_network
+
+  auth_service:
+    build:
+      context: ./AuthService
+      dockerfile: Dockerfile
+    container_name: auth_service
+    ports:
+      - "5002:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Jwt__Key=SuperSecretKeyForJwtTokenGeneration123
+    networks:
+      - ms_network
+
+  api-gateway:
+    build:
+      context: ./ApiGateway
+      dockerfile: Dockerfile
+    container_name: api_gateway
+    ports:
+      - "5001:8080"
+    volumes:
+      - ./ApiGateway/ocelot.json:/app/ocelot.json
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Jwt__Key=SuperSecretKeyForJwtTokenGeneration123
+    depends_on:
+      - ms_object_service
+      - ms_client_service
+      - auth_service
+    networks:
+      - ms_network
+
+networks:
+  ms_network:
+    driver: bridge
+
 volumes:
   mongodb_data:
   redis_data:
