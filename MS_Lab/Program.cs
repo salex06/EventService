@@ -1,24 +1,24 @@
-using MS_Lab.profiles;
-using MS_Lab.filter;
-using MS_Lab.services.tickets;
-using MS_Lab.services.events;
+using Confluent.Kafka;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
+using MS_Lab.config;
 using MS_Lab.data;
+using MS_Lab.filter;
+using MS_Lab.kafka.consumer;
+using MS_Lab.kafka.producer;
+using MS_Lab.profiles;
 using MS_Lab.repositories.events;
 using MS_Lab.repositories.tickets;
-using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
-using MS_Lab.config;
+using MS_Lab.services.events;
+using MS_Lab.services.tickets;
 using Prometheus;
-using Confluent.Kafka;
-using System.Text.Json;
-using MS_Lab.kafka.producer;
-using MS_Lab.kafka.consumer;
-using static Prometheus.MetricServerMiddleware;
-using static Confluent.Kafka.ConfigPropertyNames;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddMvcCore()
+        .AddApiExplorer();
 
 // Mongo
 builder.Services.AddSingleton<IMongoClient>(sp =>
@@ -72,7 +72,28 @@ builder.Services.AddHealthChecks();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "MS_Lab", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer 12345abcdef'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            new List<string>()
+        }
+    });
+});
 
 // Injected objects
 builder.Services.AddScoped<ITicketService, TicketService>();

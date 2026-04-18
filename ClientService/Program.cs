@@ -10,10 +10,14 @@ using ClientService.service.impl;
 using Confluent.Kafka;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddMvcCore()
+        .AddApiExplorer();
 
 // MongoDB
 builder.Services.AddSingleton<IMongoClient>(sp =>
@@ -41,7 +45,28 @@ builder.Services.AddControllers();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "ClientService", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer 12345abcdef'",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer"
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            new List<string>()
+        }
+    });
+});
 
 // Metrics 
 builder.Services.AddMetrics();
@@ -109,12 +134,8 @@ builder.Services.AddHostedService<ConsumerService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 // Controllers
 app.UseRouting();

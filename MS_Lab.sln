@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.13.35806.99
+# Visual Studio Version 18
+VisualStudioVersion = 18.6.11709.129
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MS_Lab", "MS_Lab\MS_Lab.csproj", "{BEA069C9-90EE-4FB7-A376-2CE981AE936C}"
 EndProject
@@ -15,6 +15,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "prometheus", "prometheus", 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientService", "ClientService\ClientService.csproj", "{C13FA0CE-907C-4B50-B6FC-C7A16D529634}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthTests", "AuthTests\AuthTests.csproj", "{B2702E8B-41D4-81AD-60EB-C55F8337C9DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService", "AuthService\AuthService.csproj", "{6CDAB7B3-DE4F-6FF5-06F0-D824F083F1AF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGateway", "ApiGateway\ApiGateway.csproj", "{ABE66B30-BD47-A7B2-B17B-5BA67959B026}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +44,18 @@ Global
 		{C13FA0CE-907C-4B50-B6FC-C7A16D529634}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C13FA0CE-907C-4B50-B6FC-C7A16D529634}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C13FA0CE-907C-4B50-B6FC-C7A16D529634}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2702E8B-41D4-81AD-60EB-C55F8337C9DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2702E8B-41D4-81AD-60EB-C55F8337C9DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2702E8B-41D4-81AD-60EB-C55F8337C9DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2702E8B-41D4-81AD-60EB-C55F8337C9DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CDAB7B3-DE4F-6FF5-06F0-D824F083F1AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CDAB7B3-DE4F-6FF5-06F0-D824F083F1AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CDAB7B3-DE4F-6FF5-06F0-D824F083F1AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CDAB7B3-DE4F-6FF5-06F0-D824F083F1AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABE66B30-BD47-A7B2-B17B-5BA67959B026}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABE66B30-BD47-A7B2-B17B-5BA67959B026}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABE66B30-BD47-A7B2-B17B-5BA67959B026}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABE66B30-BD47-A7B2-B17B-5BA67959B026}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
