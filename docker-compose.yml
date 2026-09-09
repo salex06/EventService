@@ -56,6 +56,8 @@ services:
       context: ./MS_Lab
       dockerfile: Dockerfile
     container_name: ms_object_service
+    ports: 
+       - "8080:8080"
     expose:
        - "8080"
     environment:
@@ -75,6 +77,8 @@ services:
       context: ./ClientService
       dockerfile: Dockerfile
     container_name: ms_client_service
+    ports:
+       - "8085:8080"
     expose:
        - "8080"
     environment:
