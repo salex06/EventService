@@ -1,5 +1,6 @@
 ﻿using MS_Lab.dto;
 using MS_Lab.dto.events;
+using MS_Lab.dto.ticket;
 using System.Text.Json;
 
 namespace MS_Lab.kafka.producer
@@ -8,12 +9,12 @@ namespace MS_Lab.kafka.producer
     {
         Task<bool> SendMessageAsync(string topic, string message, string? key = null);
 
-        public void SendConfirmationRequest(EventDto createdEvent, string confirmatorId, string topicName)
+        public void SendConfirmationRequest(dto.ObjectType type, string id, string confirmatorId, string topicName)
         {
             RegObjectDto regObject = new RegObjectDto()
             {
                 Type = dto.ObjectType.Event,
-                ObjectId = createdEvent.Id,
+                ObjectId = id,
                 ConfirmatorId = confirmatorId
             };
 

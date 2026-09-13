@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MS_Lab.dto;
@@ -19,15 +20,17 @@ namespace MS_Lab.api
         private readonly ITicketService _ticketService;
         private readonly IKafkaMessageProducer _kafkaMessageProducer;
         private readonly ProducerSettings _producerSettings;
+        private readonly IMapper _mapper;
         public TicketController(
             ITicketService ticketService, 
             IKafkaMessageProducer producer,
-            IOptions<ProducerSettings> producerSettings)
+            IOptions<ProducerSettings> producerSettings,
+            IMapper mapper)
         {
             _ticketService = ticketService;
             _kafkaMessageProducer = producer;
             _producerSettings = producerSettings.Value;
-
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -47,8 +50,8 @@ namespace MS_Lab.api
         public async Task<ActionResult<IEnumerable<TicketDto>>> GetAll([FromQuery] TicketFilterDto filter)
         {
             var tickets = await _ticketService.GetAllTicketsAsync(filter);
-
-            return Ok(tickets);
+            
+            return Ok(_mapper.Map<IEnumerable<TicketDto>>(tickets));
         }
 
         /// <summary>
@@ -76,7 +79,7 @@ namespace MS_Lab.api
                 return NotFound();
             }
 
-            return Ok(ticket);
+            return Ok(_mapper.Map<TicketDto>(ticket));
         }
 
         /// <summary>
@@ -109,10 +112,11 @@ namespace MS_Lab.api
         public async Task<ActionResult<TicketDto>> Create(CreateTicketDto ticketInfo)
         {
             var ticket = await _ticketService.CreateTicketAsync(ticketInfo);
+            var dto = _mapper.Map<TicketDto>(ticket);
+            
+            _kafkaMessageProducer.SendConfirmationRequest(MS_Lab.dto.ObjectType.Ticket, ticket.Id, ticketInfo.ConfirmatorId, _producerSettings.TopicName);
 
-            SendConfirmationRequest(ticket, ticketInfo.ConfirmatorId);
-
-            return CreatedAtAction(nameof(GetById), new { id = ticket.Id }, ticket);
+            return CreatedAtAction(nameof(GetById), new { id = ticket.Id }, dto);
         }
 
         /// <summary>
@@ -146,7 +150,7 @@ namespace MS_Lab.api
         {
             var ticket = await _ticketService.UpdateTicketAsync(id, ticketInfo);
 
-            return Ok(ticket);
+            return Ok(_mapper.Map<TicketDto>(ticket));
         }
 
         /// <summary>
@@ -170,20 +174,5 @@ namespace MS_Lab.api
 
             return Ok();
         }
-
-
-        private void SendConfirmationRequest(TicketDto createdTicket, string confirmatorId)
-        {
-            RegObjectDto regObject = new RegObjectDto()
-            {
-                Type = dto.ObjectType.Ticket,
-                ObjectId = createdTicket.Id,
-                ConfirmatorId = confirmatorId
-            };
-            string message = JsonSerializer.Serialize(regObject);
-
-            _kafkaMessageProducer.SendMessageAsync(_producerSettings.TopicName, message);
-        }
-
     }
 }

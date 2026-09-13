@@ -1,21 +1,23 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Options;
 using MS_Lab.dto.events;
+using MS_Lab.dto.ticket;
 using MS_Lab.entities;
 using MS_Lab.exception;
 using MS_Lab.kafka.producer;
 using MS_Lab.services.events;
+using MS_Lab.services.tickets;
 using System.Reflection;
 
 namespace MS_Lab.graphql
 {
-    public class EventMutation
+    public class Mutation
     {
         private readonly IMapper _mapper;
         private readonly IKafkaMessageProducer _kafkaMessageProducer;
         private readonly ProducerSettings _producerSettings;
 
-        public EventMutation(IMapper mapper, 
+        public Mutation(IMapper mapper, 
             IKafkaMessageProducer kafkaMessageProducer,
             IOptions<ProducerSettings> producerSettings)
         {
@@ -27,8 +29,10 @@ namespace MS_Lab.graphql
         public async Task<Event> CreateEvent(CreateEventDto ev, [Service] IEventService svc) {
             var createdEvent = await svc.CreateEventAsync(_mapper.Map<Event>(ev));
 
-            _kafkaMessageProducer.SendConfirmationRequest(_mapper.Map<EventDto>(createdEvent), 
-                ev.ConfirmatorId, 
+            _kafkaMessageProducer.SendConfirmationRequest(
+                dto.ObjectType.Event,
+                createdEvent.Id,
+                ev.ConfirmatorId,
                 _producerSettings.TopicName
             );
 
@@ -55,6 +59,54 @@ namespace MS_Lab.graphql
             try
             {
                 await svc.DeleteEventAsync(id);
+                return true;
+            }
+            catch (NotFoundException ex)
+            {
+                throw new GraphQLException(
+                    ErrorBuilder.New()
+                        .SetMessage(ex.Message)
+                        .SetCode(ex.StatusCode.ToString())
+                        .Build()
+                );
+            }
+        }
+
+        public async Task<Ticket> CreateTicket(CreateTicketDto ticket, [Service] ITicketService svc) {
+            var createdTicket = await svc.CreateTicketAsync(ticket);
+
+            _kafkaMessageProducer.SendConfirmationRequest(
+                dto.ObjectType.Event,
+                createdTicket.Id,
+                ticket.ConfirmatorId,
+                _producerSettings.TopicName
+            );
+
+            return createdTicket;
+        }
+
+        public async Task<Ticket> UpdateTicket(string id, UpdateTicketDto ticket, [Service] ITicketService svc)
+        {
+            try
+            {
+                return await svc.UpdateTicketAsync(id, ticket);
+            }
+            catch (NotFoundException ex)
+            {
+                throw new GraphQLException(
+                    ErrorBuilder.New()
+                        .SetMessage(ex.Message)
+                        .SetCode(ex.StatusCode.ToString())
+                        .Build()
+                );
+            }
+        }
+
+        public async Task<bool> DeleteTicket(string id, [Service] ITicketService svc)
+        {
+            try
+            {
+                await svc.DeleteTicketAsync(id);
                 return true;
             }
             catch (NotFoundException ex)

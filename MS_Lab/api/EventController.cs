@@ -108,7 +108,7 @@ namespace MS_Lab.api
             var createdEvent = await _eventService.CreateEventAsync(_mapper.Map<Event>(eventInfo));
             
             var dto = _mapper.Map<EventDto>(createdEvent);
-            _kafkaMessageProducer.SendConfirmationRequest(dto, eventInfo.ConfirmatorId, _producerSettings.TopicName);
+            _kafkaMessageProducer.SendConfirmationRequest(MS_Lab.dto.ObjectType.Event, dto.Id, eventInfo.ConfirmatorId, _producerSettings.TopicName);
 
             return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
         }

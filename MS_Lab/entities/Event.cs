@@ -36,7 +36,7 @@ namespace MS_Lab.entities
         public int Price { get; set; }
 
         [BsonElement("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
 
         [BsonElement("confirmator_id")]
         public string ConfirmatorId { get; set; } = "";

@@ -147,8 +147,8 @@ builder.Services.AddOptions<ConsumerSettings>()
 builder.Services.AddHostedService<ConsumerService>();
 
 builder.Services.AddGraphQLServer()
-    .AddQueryType<EventQuery>()
-    .AddMutationType<EventMutation>()
+    .AddQueryType<Query>()
+    .AddMutationType<Mutation>()
     .AddInMemorySubscriptions()
     .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true);
 
