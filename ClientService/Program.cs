@@ -132,6 +132,8 @@ builder.Services.AddOptions<ConsumerSettings>()
     .ValidateOnStart();
 builder.Services.AddHostedService<ConsumerService>();
 
+//builder.Services.AddGraphQLServer();
+
 var app = builder.Build();
 
 app.UseSwagger();
@@ -153,4 +155,5 @@ app.UseHttpMetrics();
 //    await consumer.StartAsync(CancellationToken.None);
 //});
 
+//app.MapGraphQL("/graphql");
 app.Run();

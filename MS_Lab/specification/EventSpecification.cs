@@ -7,7 +7,7 @@ namespace MS_Lab.specification
 {
     public static class EventSpecification
     {
-        public static ISpecification<Event>? FromFilter(EventFilterDto filter) {
+        public static ISpecification<Event>? FromFilter(EventFilterDto? filter) {
             if (filter == null || !filter.HasFilters()) {
                 return null;
             }

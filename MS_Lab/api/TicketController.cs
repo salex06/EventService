@@ -176,7 +176,7 @@ namespace MS_Lab.api
         {
             RegObjectDto regObject = new RegObjectDto()
             {
-                Type = ObjectType.Ticket,
+                Type = dto.ObjectType.Ticket,
                 ObjectId = createdTicket.Id,
                 ConfirmatorId = confirmatorId
             };

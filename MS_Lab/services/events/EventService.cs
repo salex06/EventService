@@ -17,36 +17,32 @@ namespace MS_Lab.services.events
             .CreateCounter("created_events_total", "Created events count");
 
         private readonly IEventRepository _eventRepository;
-        private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
 
         // `время жизни` кэша в минтуах
         private readonly int _cacheExpirationMinutes = 5;
 
-        public EventService(IEventRepository eventRepository, IMapper mapper, IDistributedCache cache)
+        public EventService(IEventRepository eventRepository, IDistributedCache cache)
         {
             _eventRepository = eventRepository;
-            _mapper = mapper;
             _cache = cache;
         }
 
-        public async Task<IEnumerable<EventDto>> GetAllEventsAsync(EventFilterDto filter)
+        public async Task<IEnumerable<Event>> GetAllEventsAsync(EventFilterDto? filter)
         {
             var spec = EventSpecification.FromFilter(filter);
 
-            var events = await _eventRepository.GetAllAsync(spec);
-
-            return _mapper.Map<IEnumerable<EventDto>>(events);
+            return await _eventRepository.GetAllAsync(spec);
         }
 
-        public async Task<EventDto> GetEventByIdAsync(string id)
+        public async Task<Event> GetEventByIdAsync(string id)
         {
             string cacheKey = $"event:{id}";
 
             var cached = await _cache.GetStringAsync(cacheKey);
             if (cached != null)
             {
-                return JsonSerializer.Deserialize<EventDto>(cached)!;
+                return JsonSerializer.Deserialize<Event>(cached)!;
             }
 
             var foundEvent = await _eventRepository.GetByIdAsync(id);
@@ -55,51 +51,51 @@ namespace MS_Lab.services.events
                 throw new NotFoundException($"Событие с id={id} не найдено");
             }
 
-            var dto = _mapper.Map<EventDto>(foundEvent);
-
             var options = new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
             };
-            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(foundEvent), options);
 
-            return dto;
+            return foundEvent;
         }
 
 
-        public async Task<EventDto> CreateEventAsync(CreateEventDto createEventDTO)
+        public async Task<Event> CreateEventAsync(Event eventInfo)
         {
-            var eventInfo = _mapper.Map<Event>(createEventDTO);
             var savedEvent = await _eventRepository.CreateAsync(eventInfo);
-            var dto = _mapper.Map<EventDto>(savedEvent);
 
-            string cacheKey = $"event:{dto.Id}";
+            string cacheKey = $"event:{savedEvent.Id}";
             var options = new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
             };
-            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(savedEvent), options);
 
             createdEventsCounter.Inc();
-            return dto;
+            
+            return savedEvent;
         }
 
-        public async Task<EventDto> UpdateEventAsync(string eventId, UpdateEventDto updateEventDTO)
+        public async Task<Event> UpdateEventAsync(string eventId, UpdateEventDto updateEvent)
         {
             var existingEvent = await _eventRepository.GetByIdAsync(eventId);
             if (existingEvent == null)
                 throw new NotFoundException($"Событие с id={eventId} не найдено");
 
-            updateEventDTO.Id = eventId;
-            _mapper.Map(updateEventDTO, existingEvent);
-            
-            var updatedEvent = await _eventRepository.UpdateAsync(existingEvent);
-            var dto = _mapper.Map<EventDto>(updatedEvent);
-
-            string cacheKey = $"event:{dto.Id}";
+            string cacheKey = $"event:{updateEvent.Id}";
             await _cache.RemoveAsync(cacheKey);
 
-            return dto;
+            if (updateEvent.Name != null) existingEvent.Name = updateEvent.Name;
+            if (updateEvent.Place != null) existingEvent.Place = updateEvent.Place;
+            if (updateEvent.Description != null) existingEvent.Description = updateEvent.Description;
+            if (updateEvent.EndTimeUTC != null) existingEvent.EndTimeUTC = (DateTime)updateEvent.EndTimeUTC;
+            if (updateEvent.EventType != null) existingEvent.EventType = (enums.EventType)updateEvent.EventType;
+            if (updateEvent.Price != null) existingEvent.Price = (int)updateEvent.Price;
+            if (updateEvent.StartTimeUTC != null) existingEvent.StartTimeUTC = (DateTime)updateEvent.StartTimeUTC;
+            if (updateEvent.TicketCount != null) existingEvent.TicketCount = (int)updateEvent.TicketCount;
+
+            return await _eventRepository.UpdateAsync(existingEvent);
         }
 
         public async Task DeleteEventAsync(string id)

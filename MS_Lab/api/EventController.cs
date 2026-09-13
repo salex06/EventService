@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using MS_Lab.dto;
@@ -19,13 +20,16 @@ namespace MS_Lab.api
         private readonly IEventService _eventService;
         private readonly IKafkaMessageProducer _kafkaMessageProducer;
         private readonly ProducerSettings _producerSettings;
+        private readonly IMapper _mapper;
         public EventController(IEventService eventService, 
                                IKafkaMessageProducer kafkaMessageProducer,
-                               IOptions<ProducerSettings> producerSettings)
+                               IOptions<ProducerSettings> producerSettings,
+                               IMapper mapper)
         {
             _eventService = eventService;
             _kafkaMessageProducer = kafkaMessageProducer;
             _producerSettings = producerSettings.Value;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -46,7 +50,7 @@ namespace MS_Lab.api
         {
             var events = await _eventService.GetAllEventsAsync(filter);
 
-            return Ok(events);
+            return Ok(_mapper.Map<IEnumerable<EventDto>>(events));
         }
 
         /// <summary>
@@ -70,7 +74,7 @@ namespace MS_Lab.api
         {
             var foundEvent = await _eventService.GetEventByIdAsync(id);
 
-            return Ok(foundEvent);
+            return Ok(_mapper.Map<EventDto>(foundEvent));
         }
 
         /// <summary>
@@ -101,11 +105,12 @@ namespace MS_Lab.api
         [ProducesResponseType(typeof(ErrorResponse), 500)]
         public async Task<ActionResult<EventDto>> Create(CreateEventDto eventInfo)
         {
-            var createdEvent = await _eventService.CreateEventAsync(eventInfo);
+            var createdEvent = await _eventService.CreateEventAsync(_mapper.Map<Event>(eventInfo));
+            
+            var dto = _mapper.Map<EventDto>(createdEvent);
+            _kafkaMessageProducer.SendConfirmationRequest(dto, eventInfo.ConfirmatorId, _producerSettings.TopicName);
 
-            SendConfirmationRequest(createdEvent, eventInfo.ConfirmatorId);
-
-            return CreatedAtAction(nameof(GetById), new { id = createdEvent.Id }, createdEvent);
+            return CreatedAtAction(nameof(GetById), new { id = dto.Id }, dto);
         }
 
         /// <summary>
@@ -138,8 +143,11 @@ namespace MS_Lab.api
         [ProducesResponseType(typeof(ErrorResponse), 500)]
         public async Task<ActionResult<EventDto>> Update(string id, UpdateEventDto eventInfo)
         {
+            eventInfo.Id = id;
+
             var updatedEvent = await _eventService.UpdateEventAsync(id, eventInfo);
-            return Ok(updatedEvent);
+
+            return Ok(_mapper.Map<EventDto>(updatedEvent));
         }
 
         /// <summary>
@@ -174,19 +182,6 @@ namespace MS_Lab.api
         public ActionResult WaitABit() {
             Thread.Sleep(2000);
             return Ok();
-        }
-
-        private void SendConfirmationRequest(EventDto createdEvent, string confirmatorId) {
-            RegObjectDto regObject = new RegObjectDto()
-            {
-                Type = ObjectType.Event,
-                ObjectId = createdEvent.Id,
-                ConfirmatorId = confirmatorId
-            };
-
-            string message = JsonSerializer.Serialize(regObject);
-
-            _kafkaMessageProducer.SendMessageAsync(_producerSettings.TopicName, message);
         }
     }
 }

@@ -6,6 +6,7 @@ using MongoDB.Driver;
 using MS_Lab.config;
 using MS_Lab.data;
 using MS_Lab.filter;
+using MS_Lab.graphql;
 using MS_Lab.kafka.consumer;
 using MS_Lab.kafka.producer;
 using MS_Lab.profiles;
@@ -145,6 +146,12 @@ builder.Services.AddOptions<ConsumerSettings>()
     .ValidateOnStart();
 builder.Services.AddHostedService<ConsumerService>();
 
+builder.Services.AddGraphQLServer()
+    .AddQueryType<EventQuery>()
+    .AddMutationType<EventMutation>()
+    .AddInMemorySubscriptions()
+    .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true);
+
 var app = builder.Build();
 
 //Swagger
@@ -173,13 +180,7 @@ app.MapControllers();
 app.UseMetricServer();
 app.UseHttpMetrics();
 
-//await Task.Run(async () =>
-//{
-//    await Task.Delay(10000); // Даем хосту запуститься
-//    using var scope = app.Services.CreateScope();
-//    var consumer = scope.ServiceProvider.GetRequiredService<ConsumerService>();
-//    await consumer.StartAsync(CancellationToken.None);
-//});
+app.MapGraphQL("/graphql");
 
 await app.RunAsync();
 public partial class Program 

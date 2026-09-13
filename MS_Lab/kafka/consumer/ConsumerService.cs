@@ -83,7 +83,7 @@ namespace MS_Lab.kafka.consumer
 
                 if (data == null) return;
 
-                if (data.ObjType == ObjectType.Event)
+                if (data.ObjType == dto.ObjectType.Event)
                 {
                     using (var scope = _scopeFactory.CreateScope())
                     {
