@@ -11,6 +11,8 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.1.1" />
     <PackageReference Include="Confluent.Kafka" Version="2.13.2" />
+    <PackageReference Include="HotChocolate" Version="16.6.6" />
+    <PackageReference Include="HotChocolate.AspNetCore" Version="16.6.6" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
     <PackageReference Include="MongoDB.Bson" Version="3.7.1" />
     <PackageReference Include="MongoDB.Driver" Version="3.7.1" />

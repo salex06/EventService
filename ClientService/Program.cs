@@ -1,5 +1,6 @@
 using ClientService.db;
 using ClientService.filter;
+using ClientService.graphql;
 using ClientService.kafka.consumer;
 using ClientService.kafka.producer;
 using ClientService.profile;
@@ -132,6 +133,10 @@ builder.Services.AddOptions<ConsumerSettings>()
     .ValidateOnStart();
 builder.Services.AddHostedService<ConsumerService>();
 
+builder.Services.AddGraphQLServer()
+    .AddQueryType<Query>()
+    .AddMutationType<Mutation>();
+
 var app = builder.Build();
 
 app.UseSwagger();
@@ -145,12 +150,6 @@ app.MapControllers();
 app.UseMetricServer();
 app.UseHttpMetrics();
 
-//await Task.Run(async () =>
-//{
-//    await Task.Delay(10000); // Даем хосту запуститься
-//    using var scope = app.Services.CreateScope();
-//    var consumer = scope.ServiceProvider.GetRequiredService<ConsumerService>();
-//    await consumer.StartAsync(CancellationToken.None);
-//});
+app.MapGraphQL("/graphql");
 
 app.Run();

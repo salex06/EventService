@@ -6,7 +6,8 @@ namespace ClientService.profile
 {
     public class UserProfile : Profile
     {
-        public UserProfile() {
+        public UserProfile()
+        {
             CreateMap<UserDto, User>();
             CreateMap<User, UserDto>();
 

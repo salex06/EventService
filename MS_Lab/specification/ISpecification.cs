@@ -9,7 +9,8 @@ namespace MS_Lab.specification
 
     public class Specification<T> : ISpecification<T>
     {
-        public Specification(Expression<Func<T, bool>> criteria) {
+        public Specification(Expression<Func<T, bool>> criteria)
+        {
             Criteria = criteria;
         }
 

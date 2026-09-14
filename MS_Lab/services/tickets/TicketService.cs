@@ -21,34 +21,33 @@ namespace MS_Lab.services.tickets
         private readonly ITicketRepository _ticketRepository;
         private readonly IEventRepository _eventRepository;
 
-        private readonly IMapper _mapper;
+        //private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
 
         // `время жизни` кэша в минтуах
         private readonly int _cacheExpirationMinutes = 5;
 
-        public TicketService(ITicketRepository ticketRepository, IEventRepository eventRepository, IMapper mapper, IDistributedCache cache)
+        public TicketService(ITicketRepository ticketRepository, IEventRepository eventRepository, IDistributedCache cache)
         {
             _ticketRepository = ticketRepository;
             _eventRepository = eventRepository;
-            _mapper = mapper;
             _cache = cache;
         }
 
-        public async Task<IEnumerable<TicketDto>> GetAllTicketsAsync(TicketFilterDto filter)
+        public async Task<IEnumerable<Ticket>> GetAllTicketsAsync(TicketFilterDto filter)
         {
             var spec = TicketSpecification.FromFilter(filter);
-            var tickets = await _ticketRepository.GetAllAsync(spec);
-            return _mapper.Map<IEnumerable<TicketDto>>(tickets);
+            //return _mapper.Map<IEnumerable<TicketDto>>(tickets);
+            return await _ticketRepository.GetAllAsync(spec);
         }
 
-        public async Task<TicketDto> GetTicketByIdAsync(string id)
+        public async Task<Ticket> GetTicketByIdAsync(string id)
         {
             string cacheKey = $"ticket:{id}";
             var cached = await _cache.GetStringAsync(cacheKey);
             if (cached != null)
             {
-                return JsonSerializer.Deserialize<TicketDto>(cached)!;
+                return JsonSerializer.Deserialize<Ticket>(cached)!;
             }
 
             var ticket = await _ticketRepository.GetByIdAsync(id);
@@ -57,16 +56,16 @@ namespace MS_Lab.services.tickets
                 throw new NotFoundException($"Билет с id={id} не найден");
             }
 
-            var dto = _mapper.Map<TicketDto>(ticket);
+            //var dto = _mapper.Map<TicketDto>(ticket);
             var options = new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
             };
-            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
-            return dto;
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(ticket), options);
+            return ticket;
         }
 
-        public async Task<TicketDto> CreateTicketAsync(CreateTicketDto createTicketDTO)
+        public async Task<Ticket> CreateTicketAsync(CreateTicketDto createTicketDTO)
         {
             string eventId = createTicketDTO.EventId;
             var foundEvent = await _eventRepository.GetByIdAsync(eventId);
@@ -77,24 +76,40 @@ namespace MS_Lab.services.tickets
             if (soldTicketNumber == foundEvent.TicketCount)
                 throw new BadRequestException("Все билеты проданы");
 
-            var ticket = _mapper.Map<Ticket>(createTicketDTO);
-            ticket.Event = foundEvent;
+            TicketOwner owner = new TicketOwner
+            {
+                Id = createTicketDTO.TicketOwner.Id,
+                Name = createTicketDTO.TicketOwner.Name,
+                Surname = createTicketDTO.TicketOwner.Surname,
+                Phone = createTicketDTO.TicketOwner.Phone,
+                Email = createTicketDTO.TicketOwner.Email
+            };
+
+            Ticket ticket = new Ticket
+            {
+                Event = foundEvent,
+                Owner = owner,
+                ConfirmatorId = createTicketDTO.ConfirmatorId
+            };
+
+            //var ticket = _mapper.Map<Ticket>(createTicketDTO);
+            //ticket.Event = foundEvent;
 
             var savedTicket = await _ticketRepository.CreateAsync(ticket);
-            var dto = _mapper.Map<TicketDto>(savedTicket);
+            //var dto = _mapper.Map<TicketDto>(savedTicket);
 
-            string cacheKey = $"ticket:{dto.Id}";
+            string cacheKey = $"ticket:{savedTicket.Id}";
             var options = new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
             };
-            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(dto), options);
+            await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(savedTicket), options);
 
             createdTicketsCounter.Inc();
-            return dto;
+            return savedTicket;
         }
 
-        public async Task<TicketDto> UpdateTicketAsync(string id, UpdateTicketDto updateTicketDTO)
+        public async Task<Ticket> UpdateTicketAsync(string id, UpdateTicketDto updateTicketDTO)
         {
             var existingTicket = await _ticketRepository.GetByIdAsync(id);
             if (existingTicket == null)
@@ -104,14 +119,24 @@ namespace MS_Lab.services.tickets
             if (foundEvent == null)
                 throw new NotFoundException($"Событие с id={existingTicket.Event.Id} не найдено");
 
-            _mapper.Map(updateTicketDTO, existingTicket);
-            var updated = await _ticketRepository.UpdateAsync(existingTicket);
-            var dto = _mapper.Map<TicketDto>(updated);
 
-            string cacheKey = $"ticket:{dto.Id}";
+            if (updateTicketDTO.TicketOwner != null)
+            {
+                if (updateTicketDTO.TicketOwner.Id != null) existingTicket.Owner.Id = updateTicketDTO.TicketOwner.Id;
+                if (updateTicketDTO.TicketOwner.Name != null) existingTicket.Owner.Name = updateTicketDTO.TicketOwner.Name;
+                if (updateTicketDTO.TicketOwner.Surname != null) existingTicket.Owner.Surname = updateTicketDTO.TicketOwner.Surname;
+                if (updateTicketDTO.TicketOwner.Phone != null) existingTicket.Owner.Phone = updateTicketDTO.TicketOwner.Phone;
+                if (updateTicketDTO.TicketOwner.Email != null) existingTicket.Owner.Email = updateTicketDTO.TicketOwner.Email;
+            }
+
+            //_mapper.Map(updateTicketDTO, existingTicket);
+            var updated = await _ticketRepository.UpdateAsync(existingTicket);
+            //var dto = _mapper.Map<TicketDto>(updated);
+
+            string cacheKey = $"ticket:{updated.Id}";
             await _cache.RemoveAsync(cacheKey);
 
-            return dto;
+            return updated;
         }
 
         public async Task DeleteTicketAsync(string id)

@@ -7,7 +7,8 @@
         public string ConfirmatorId { get; set; } = "";
     }
 
-    public enum ObjectType { 
+    public enum ObjectType
+    {
         Event,
         Ticket
     }

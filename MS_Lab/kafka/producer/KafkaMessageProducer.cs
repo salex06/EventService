@@ -1,5 +1,8 @@
 ﻿using Confluent.Kafka;
+using MS_Lab.dto;
+using MS_Lab.dto.events;
 using Prometheus;
+using System.Text.Json;
 
 namespace MS_Lab.kafka.producer
 {
@@ -30,7 +33,8 @@ namespace MS_Lab.kafka.producer
 
                 return true;
             }
-            catch (Exception) {
+            catch (Exception)
+            {
                 return false;
             }
         }

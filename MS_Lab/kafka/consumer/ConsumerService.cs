@@ -83,7 +83,7 @@ namespace MS_Lab.kafka.consumer
 
                 if (data == null) return;
 
-                if (data.ObjType == ObjectType.Event)
+                if (data.ObjType == dto.ObjectType.Event)
                 {
                     using (var scope = _scopeFactory.CreateScope())
                     {
@@ -108,18 +108,5 @@ namespace MS_Lab.kafka.consumer
                 //It'll be better to log it
             }
         }
-
-//        public override async Task StopAsync(CancellationToken cancellationToken)
-//        {
-//_consumer.Unsubscribe();
-
-//            _consumer.Close();
-
-//            await Task.Delay(5000, cancellationToken);
-
-//            _consumer.Dispose();
-
-//            await base.StopAsync(cancellationToken);
-//        }
     }
 }
