@@ -3,6 +3,7 @@ using ClientService.filter;
 using ClientService.graphql;
 using ClientService.kafka.consumer;
 using ClientService.kafka.producer;
+using ClientService.metrics;
 using ClientService.profile;
 using ClientService.repository;
 using ClientService.repository.impl;
@@ -144,6 +145,7 @@ app.UseSwaggerUI();
 
 // Controllers
 app.UseRouting();
+app.UseMiddleware<MetricsMiddleware>();
 app.MapControllers();
 
 // Metrics
