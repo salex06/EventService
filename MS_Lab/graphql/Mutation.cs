@@ -44,7 +44,7 @@ namespace MS_Lab.graphql
             {
                 return await svc.UpdateEventAsync(id, ev);
             }
-            catch (NotFoundException ex)
+            catch (ApiException ex)
             {
                 throw new GraphQLException(
                     ErrorBuilder.New()
@@ -61,7 +61,7 @@ namespace MS_Lab.graphql
                 await svc.DeleteEventAsync(id);
                 return true;
             }
-            catch (NotFoundException ex)
+            catch (ApiException ex)
             {
                 throw new GraphQLException(
                     ErrorBuilder.New()
@@ -91,7 +91,7 @@ namespace MS_Lab.graphql
             {
                 return await svc.UpdateTicketAsync(id, ticket);
             }
-            catch (NotFoundException ex)
+            catch (ApiException ex)
             {
                 throw new GraphQLException(
                     ErrorBuilder.New()
@@ -109,7 +109,7 @@ namespace MS_Lab.graphql
                 await svc.DeleteTicketAsync(id);
                 return true;
             }
-            catch (NotFoundException ex)
+            catch (ApiException ex)
             {
                 throw new GraphQLException(
                     ErrorBuilder.New()
