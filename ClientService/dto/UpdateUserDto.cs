@@ -6,7 +6,7 @@ namespace ClientService.dto
     {
         [JsonRequired]
         public string? Id { get; init; } = string.Empty;
-        
+
         [JsonRequired]
         public string? Name { get; init; } = string.Empty;
 

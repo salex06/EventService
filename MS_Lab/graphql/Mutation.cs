@@ -17,7 +17,7 @@ namespace MS_Lab.graphql
         private readonly IKafkaMessageProducer _kafkaMessageProducer;
         private readonly ProducerSettings _producerSettings;
 
-        public Mutation(IMapper mapper, 
+        public Mutation(IMapper mapper,
             IKafkaMessageProducer kafkaMessageProducer,
             IOptions<ProducerSettings> producerSettings)
         {
@@ -26,7 +26,8 @@ namespace MS_Lab.graphql
             _producerSettings = producerSettings.Value;
         }
 
-        public async Task<Event> CreateEvent(CreateEventDto ev, [Service] IEventService svc) {
+        public async Task<Event> CreateEvent(CreateEventDto ev, [Service] IEventService svc)
+        {
             var createdEvent = await svc.CreateEventAsync(_mapper.Map<Event>(ev));
 
             _kafkaMessageProducer.SendConfirmationRequest(
@@ -39,7 +40,8 @@ namespace MS_Lab.graphql
             return createdEvent;
         }
 
-        public async Task<Event> UpdateEvent(string id, UpdateEventDto ev, [Service] IEventService svc) {
+        public async Task<Event> UpdateEvent(string id, UpdateEventDto ev, [Service] IEventService svc)
+        {
             try
             {
                 return await svc.UpdateEventAsync(id, ev);
@@ -55,7 +57,8 @@ namespace MS_Lab.graphql
             }
         }
 
-        public async Task<bool> DeleteEvent(string id, [Service] IEventService svc) {
+        public async Task<bool> DeleteEvent(string id, [Service] IEventService svc)
+        {
             try
             {
                 await svc.DeleteEventAsync(id);
@@ -72,7 +75,8 @@ namespace MS_Lab.graphql
             }
         }
 
-        public async Task<Ticket> CreateTicket(CreateTicketDto ticket, [Service] ITicketService svc) {
+        public async Task<Ticket> CreateTicket(CreateTicketDto ticket, [Service] ITicketService svc)
+        {
             var createdTicket = await svc.CreateTicketAsync(ticket);
 
             _kafkaMessageProducer.SendConfirmationRequest(

@@ -21,7 +21,7 @@ namespace MS_Lab.api
         private readonly IKafkaMessageProducer _kafkaMessageProducer;
         private readonly ProducerSettings _producerSettings;
         private readonly IMapper _mapper;
-        public EventController(IEventService eventService, 
+        public EventController(IEventService eventService,
                                IKafkaMessageProducer kafkaMessageProducer,
                                IOptions<ProducerSettings> producerSettings,
                                IMapper mapper)
@@ -106,7 +106,7 @@ namespace MS_Lab.api
         public async Task<ActionResult<EventDto>> Create(CreateEventDto eventInfo)
         {
             var createdEvent = await _eventService.CreateEventAsync(_mapper.Map<Event>(eventInfo));
-            
+
             var dto = _mapper.Map<EventDto>(createdEvent);
             _kafkaMessageProducer.SendConfirmationRequest(MS_Lab.dto.ObjectType.Event, dto.Id, eventInfo.ConfirmatorId, _producerSettings.TopicName);
 
@@ -174,12 +174,14 @@ namespace MS_Lab.api
 
 
         [HttpGet("danger")]
-        public ActionResult Get500() {
+        public ActionResult Get500()
+        {
             return StatusCode(500);
         }
 
         [HttpGet("want_sleep")]
-        public ActionResult WaitABit() {
+        public ActionResult WaitABit()
+        {
             Thread.Sleep(2000);
             return Ok();
         }

@@ -16,9 +16,10 @@ namespace ClientService.service.impl
         private readonly IKafkaMessageProducer _producer;
         private readonly ProducerSettings _producerSettings;
         public UserService(
-            IUserRepository userRepository, 
-            IKafkaMessageProducer producer, 
-            IOptions<ProducerSettings> producerSettings) {
+            IUserRepository userRepository,
+            IKafkaMessageProducer producer,
+            IOptions<ProducerSettings> producerSettings)
+        {
             _userRepository = userRepository;
             _producer = producer;
             _producerSettings = producerSettings.Value;
@@ -31,7 +32,7 @@ namespace ClientService.service.impl
         public async Task<User> GetUserByIdAsync(string id)
         {
             var user = await _userRepository.GetUserAsync(id);
-            if (user == null) 
+            if (user == null)
                 throw new NotFoundException($"Пользователь с id={id} не найден");
 
             return user;
@@ -44,7 +45,8 @@ namespace ClientService.service.impl
             if (user != null)
                 throw new BadRequestException($"Имя {userName} уже занято");
 
-            var userToSave = new User { 
+            var userToSave = new User
+            {
                 Name = createUserDto.Name,
                 Email = createUserDto.Email,
                 RegisteredObjects = 0
@@ -69,16 +71,18 @@ namespace ClientService.service.impl
 
         public async Task<bool> DeleteUserAsync(string id)
         {
-            if(!await _userRepository.DeleteUserAsync(id))
+            if (!await _userRepository.DeleteUserAsync(id))
                 throw new NotFoundException($"Пользователь с id={id} не найден");
 
             return true;
         }
 
-        public async Task ConfirmObject(RegObjectDto regObjectDto) {
+        public async Task ConfirmObject(RegObjectDto regObjectDto)
+        {
             var userId = regObjectDto.ConfirmatorId;
             var user = await _userRepository.GetUserAsync(userId);
-            if (user != null) {
+            if (user != null)
+            {
                 user.RegisteredObjects++;
                 await _userRepository.UpdateUserAsync(user);
 

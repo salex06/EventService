@@ -24,8 +24,9 @@ namespace MS_Lab.repositories.events
         public async Task<IEnumerable<Event>> GetAllAsync(ISpecification<Event>? spec = null)
         {
             var filter = Builders<Event>.Filter.Empty;
-            
-            if (spec?.Criteria != null) {
+
+            if (spec?.Criteria != null)
+            {
                 filter = Builders<Event>.Filter.Where(spec.Criteria);
             }
 

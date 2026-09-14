@@ -23,7 +23,8 @@ namespace MS_Lab.repositories.tickets
         {
             var filter = Builders<Ticket>.Filter.Empty;
 
-            if (spec?.Criteria != null) {
+            if (spec?.Criteria != null)
+            {
                 filter = Builders<Ticket>.Filter.Where(spec.Criteria);
             }
 

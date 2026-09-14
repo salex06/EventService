@@ -93,7 +93,7 @@ namespace ClientService.kafka.consumer
             }
             catch (Exception)
             {
-               //It'll be better to log it
+                //It'll be better to log it
             }
         }
 

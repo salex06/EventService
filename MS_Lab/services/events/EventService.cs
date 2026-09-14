@@ -73,7 +73,7 @@ namespace MS_Lab.services.events
             await _cache.SetStringAsync(cacheKey, JsonSerializer.Serialize(savedEvent), options);
 
             createdEventsCounter.Inc();
-            
+
             return savedEvent;
         }
 
@@ -109,10 +109,12 @@ namespace MS_Lab.services.events
             await _cache.RemoveAsync($"event:{id}");
         }
 
-        public async Task UpdateConfirmationAsync(ConfirmedObjectDto confirmedObjectDto) {
+        public async Task UpdateConfirmationAsync(ConfirmedObjectDto confirmedObjectDto)
+        {
             var objId = confirmedObjectDto.ObjId;
             var foundEvent = await _eventRepository.GetByIdAsync(objId);
-            if (foundEvent != null) {
+            if (foundEvent != null)
+            {
                 foundEvent.ConfirmStatus = ConfirmStatus.CONFFIRMED;
                 foundEvent.ConfirmedAt = confirmedObjectDto.ConfirmDateTime;
                 foundEvent.ConfirmatorId = confirmedObjectDto.ConfirmatorId;

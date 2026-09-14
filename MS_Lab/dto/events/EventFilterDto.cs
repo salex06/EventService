@@ -16,7 +16,8 @@ namespace MS_Lab.dto.events
         public int? MaxTicketCount { get; set; }
         public int? MinPrice { get; set; }
         public int? MaxPrice { get; set; }
-        public bool HasFilters() {
+        public bool HasFilters()
+        {
             return !string.IsNullOrWhiteSpace(Name)
                 || !string.IsNullOrWhiteSpace(Description)
                 || !string.IsNullOrWhiteSpace(Place)

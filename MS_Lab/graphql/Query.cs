@@ -12,7 +12,7 @@ namespace MS_Lab.graphql
 {
     public class Query
     {
-        public Task<IEnumerable<Event>> GetEvents([Service] IEventService svc) 
+        public Task<IEnumerable<Event>> GetEvents([Service] IEventService svc)
         {
             EventFilterDto empty = new EventFilterDto();
             return svc.GetAllEventsAsync(empty);

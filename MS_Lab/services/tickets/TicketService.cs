@@ -76,7 +76,8 @@ namespace MS_Lab.services.tickets
             if (soldTicketNumber == foundEvent.TicketCount)
                 throw new BadRequestException("Все билеты проданы");
 
-            TicketOwner owner = new TicketOwner {
+            TicketOwner owner = new TicketOwner
+            {
                 Id = createTicketDTO.TicketOwner.Id,
                 Name = createTicketDTO.TicketOwner.Name,
                 Surname = createTicketDTO.TicketOwner.Surname,

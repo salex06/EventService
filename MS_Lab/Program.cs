@@ -183,7 +183,7 @@ app.UseHttpMetrics();
 app.MapGraphQL("/graphql");
 
 await app.RunAsync();
-public partial class Program 
+public partial class Program
 {
     protected Program() { }
 }

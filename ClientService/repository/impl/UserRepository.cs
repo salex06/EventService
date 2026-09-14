@@ -28,34 +28,39 @@ namespace ClientService.repository.impl
                 var filter = Builders<User>.Filter.Eq(e => e.Id, id);
 
                 return await _users.Find(filter).FirstOrDefaultAsync();
-            } catch (FormatException) {
+            }
+            catch (FormatException)
+            {
                 return null;
             }
         }
 
-        public async Task<User?> GetUserByNameAsync(string name) {
+        public async Task<User?> GetUserByNameAsync(string name)
+        {
             var filter = Builders<User>.Filter.Eq(e => e.Name, name);
 
             return await _users.Find(filter).FirstOrDefaultAsync();
         }
 
-        public async Task<bool> ExistsUser(string id) {
+        public async Task<bool> ExistsUser(string id)
+        {
             try
             {
                 var filter = Builders<User>.Filter.Eq(e => e.Id, id);
 
                 return (await _users.CountDocumentsAsync(filter)) != 0;
             }
-            catch (FormatException) {
+            catch (FormatException)
+            {
                 return false;
             }
         }
 
         public async Task<User> CreateUserAsync(User user)
         {
-           await _users.InsertOneAsync(user);
+            await _users.InsertOneAsync(user);
 
-           return user;
+            return user;
         }
 
         public async Task<User?> UpdateUserAsync(User user)
@@ -68,7 +73,8 @@ namespace ClientService.repository.impl
 
                 return user;
             }
-            catch (FormatException) {
+            catch (FormatException)
+            {
                 return null;
             }
         }
@@ -83,7 +89,8 @@ namespace ClientService.repository.impl
 
                 return deleteResult.DeletedCount != 0;
             }
-            catch (FormatException) {
+            catch (FormatException)
+            {
                 return false;
             }
         }

@@ -22,7 +22,7 @@ namespace MS_Lab.api
         private readonly ProducerSettings _producerSettings;
         private readonly IMapper _mapper;
         public TicketController(
-            ITicketService ticketService, 
+            ITicketService ticketService,
             IKafkaMessageProducer producer,
             IOptions<ProducerSettings> producerSettings,
             IMapper mapper)
@@ -50,7 +50,7 @@ namespace MS_Lab.api
         public async Task<ActionResult<IEnumerable<TicketDto>>> GetAll([FromQuery] TicketFilterDto filter)
         {
             var tickets = await _ticketService.GetAllTicketsAsync(filter);
-            
+
             return Ok(_mapper.Map<IEnumerable<TicketDto>>(tickets));
         }
 
@@ -113,7 +113,7 @@ namespace MS_Lab.api
         {
             var ticket = await _ticketService.CreateTicketAsync(ticketInfo);
             var dto = _mapper.Map<TicketDto>(ticket);
-            
+
             _kafkaMessageProducer.SendConfirmationRequest(MS_Lab.dto.ObjectType.Ticket, ticket.Id, ticketInfo.ConfirmatorId, _producerSettings.TopicName);
 
             return CreatedAtAction(nameof(GetById), new { id = ticket.Id }, dto);

@@ -33,7 +33,8 @@ namespace MS_Lab.kafka.producer
 
                 return true;
             }
-            catch (Exception) {
+            catch (Exception)
+            {
                 return false;
             }
         }

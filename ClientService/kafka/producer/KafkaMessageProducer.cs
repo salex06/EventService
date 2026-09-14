@@ -30,7 +30,8 @@ namespace ClientService.kafka.producer
 
                 return true;
             }
-            catch (Exception) {
+            catch (Exception)
+            {
                 return false;
             }
         }

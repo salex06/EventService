@@ -6,11 +6,13 @@ namespace ClientService.graphql
 {
     public class Query
     {
-        public async Task<IEnumerable<User>> GetAllUsers([Service] IUserService svc) {
+        public async Task<IEnumerable<User>> GetAllUsers([Service] IUserService svc)
+        {
             return await svc.GetAllUsersAsync();
         }
 
-        public async Task<User> GetUserById(string id, [Service] IUserService svc) {
+        public async Task<User> GetUserById(string id, [Service] IUserService svc)
+        {
             try
             {
                 return await svc.GetUserByIdAsync(id);
