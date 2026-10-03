@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SonarQubeAnalysisProperties
+    xmlns="http://www.sonarsource.com/msbuild/integration/2015/1">
+
+  <!-- ─── Кодировка исходников ─── -->
+  <Property Name="sonar.sourceEncoding">UTF-8</Property>
+
+  <!-- ─── Исключения из анализа ─── -->
+  <Property Name="sonar.exclusions">**/bin/**,**/obj/**,**/publish/**,**/artifacts/**,**/*.Designer.cs,**/*.generated.cs,**/*.g.cs,**/*.g.i.cs,**/*AssemblyInfo.cs,**/*AssemblyAttributes.cs,**/*GlobalUsings.g.cs,**/*.razor.g.cs,**/*.cshtml.g.cs,**/Migrations/**,**/migrations/**,**/*.grpc.cs,**/*.pb.cs,**/Generated/**,**/generated/**,**/wwwroot/lib/**,**/wwwroot/dist/**,**/node_modules/**,**/dist/**,**/bundle.js,**/*.min.js,**/*.min.css,**/TestResults/**,**/coverage/**,**/*.coverage,**/coverage.*.xml,**/.vs/**,**/.vscode/**,**/.idea/**,**/*.user,**/*.suo,**/*.md,**/*.txt</Property>
+
+  <!-- ─── Исключения из покрытия ─── -->
+  <Property Name="sonar.coverage.exclusions">**/Program.cs,**/Startup.cs,**/GlobalUsings.cs,**/Migrations/**,**/migrations/**,**/*Dto.cs,**/*DTO.cs,**/*Request.cs,**/*Response.cs,**/*Model.cs,**/*ViewModel.cs,**/*Contract.cs,**/*Options.cs,**/*Settings.cs,**/*Config.cs,**/*Configuration.cs,**/*Exception.cs,**/*Exceptions.cs,**/*Constants.cs,**/*Consts.cs,**/*Enums.cs,**/*.Designer.cs,**/*.generated.cs,**/*.g.cs,**/*.g.i.cs,**/*.pb.cs,**/*.grpc.cs,**/Generated/**,**/generated/**,**/*Tests.cs,**/*Test.cs,**/*Tests/**,**/*.Tests/**,**/*TestHelpers/**,**/*TestFixtures/**,**/*DependencyInjection.cs,**/*ServiceCollectionExtensions.cs,**/DependencyInjection/**,**/SwaggerConfiguration.cs,**/OpenApiConfiguration.cs,**/*.cshtml.cs,**/*.razor.cs</Property>
+
+  <!-- ─── Исключения из анализа дублирования ─── -->
+  <Property Name="sonar.cpd.exclusions">**/Migrations/**,**/migrations/**,**/*.Designer.cs,**/*.generated.cs,**/*.g.cs,**/*.pb.cs,**/*.grpc.cs,**/Generated/**,**/generated/**,**/*Tests.cs,**/*Tests/**,**/*.Tests/**,**/wwwroot/lib/**,**/node_modules/**</Property>
+
+  <!-- ─── Покрытие ─── -->
+  <Property Name="sonar.cs.opencover.reportsPaths">**/coverage.opencover.xml</Property>
+
+  <!-- ─── SCM ─── -->
+  <Property Name="sonar.scm.exclusions.disabled">false</Property>
+  <Property Name="sonar.scm.forceReloadAll">false</Property>
+
+  <!-- ─── Прочее ─── -->
+  <Property Name="sonar.cs.analyzeGeneratedCode">false</Property>
+  <Property Name="sonar.cs.ignoreHeaderComments">true</Property>
+
+</SonarQubeAnalysisProperties>

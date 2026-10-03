@@ -60,13 +60,18 @@ namespace ClientService.service.impl
             if (user == null)
                 throw new NotFoundException($"Пользователь с id={id} не найден");
 
-            if (await _userRepository.GetUserByNameAsync(updateUserDto.Name) != null)
+            if (updateUserDto.Name != null &&
+                await _userRepository.GetUserByNameAsync(updateUserDto.Name) != null)
                 throw new BadRequestException($"Имя {updateUserDto.Name} уже занято");
 
             if (updateUserDto.Name != null) user.Name = updateUserDto.Name;
             if (updateUserDto.Email != null) user.Email = updateUserDto.Email;
 
-            return await _userRepository.UpdateUserAsync(user);
+            var updated = await _userRepository.UpdateUserAsync(user);
+            if (updated == null)
+                throw new BadRequestException($"Ошибка обновления данных пользователя с id={id}");
+
+            return updated;
         }
 
         public async Task<bool> DeleteUserAsync(string id)

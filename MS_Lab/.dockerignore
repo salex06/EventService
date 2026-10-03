@@ -1,0 +1,60 @@
+# ── Git ──
+.git
+.gitignore
+.gitattributes
+.gitmodules
+
+# ── IDE ──
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# ── .NET артефакты ──
+**/bin/
+**/obj/
+**/publish/
+**/artifacts/
+**/TestResults/
+**/coverage/
+*.trx
+
+# ── Секреты и конфиги ──
+.env
+.env.*
+!.env.example
+secrets.json
+*.pfx
+*.pem
+*.key
+*.p12
+.npmrc
+.nuget/NuGet.Config
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.local.json
+
+# ── Frontend ──
+**/node_modules/
+**/dist/
+**/wwwroot/dist/
+**/*.min.js
+
+# ── Docker / CI ──
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+.gitlab-ci.yml
+.github/
+Jenkinsfile
+
+# ── Прочее ──
+*.md
+!README.md
+LICENSE
+docs/
+scripts/
+sonar/
+*.log
+*.tmp

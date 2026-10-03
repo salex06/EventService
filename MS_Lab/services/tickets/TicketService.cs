@@ -21,7 +21,6 @@ namespace MS_Lab.services.tickets
         private readonly ITicketRepository _ticketRepository;
         private readonly IEventRepository _eventRepository;
 
-        //private readonly IMapper _mapper;
         private readonly IDistributedCache _cache;
 
         // `время жизни` кэша в минтуах
@@ -37,7 +36,6 @@ namespace MS_Lab.services.tickets
         public async Task<IEnumerable<Ticket>> GetAllTicketsAsync(TicketFilterDto filter)
         {
             var spec = TicketSpecification.FromFilter(filter);
-            //return _mapper.Map<IEnumerable<TicketDto>>(tickets);
             return await _ticketRepository.GetAllAsync(spec);
         }
 
@@ -56,7 +54,6 @@ namespace MS_Lab.services.tickets
                 throw new NotFoundException($"Билет с id={id} не найден");
             }
 
-            //var dto = _mapper.Map<TicketDto>(ticket);
             var options = new DistributedCacheEntryOptions
             {
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_cacheExpirationMinutes)
@@ -76,13 +73,18 @@ namespace MS_Lab.services.tickets
             if (soldTicketNumber == foundEvent.TicketCount)
                 throw new BadRequestException("Все билеты проданы");
 
-            TicketOwner owner = new TicketOwner
+            ArgumentNullException.ThrowIfNull(createTicketDTO);
+
+            var ticketOwner = createTicketDTO.TicketOwner
+                ?? throw new BadRequestException("Требуется заполнить поля владельца билета");
+
+            var owner = new TicketOwner
             {
-                Id = createTicketDTO.TicketOwner.Id,
-                Name = createTicketDTO.TicketOwner.Name,
-                Surname = createTicketDTO.TicketOwner.Surname,
-                Phone = createTicketDTO.TicketOwner.Phone,
-                Email = createTicketDTO.TicketOwner.Email
+                Id = ticketOwner.Id ?? throw new BadRequestException("Id обязателен"),
+                Name = ticketOwner.Name ?? throw new BadRequestException("Name обязателен"),
+                Surname = ticketOwner.Surname ?? throw new BadRequestException("Surname обязателен"),
+                Phone = ticketOwner.Phone ?? throw new BadRequestException("Phone обязателен"),
+                Email = ticketOwner.Email ?? throw new BadRequestException("Email обязателен"),
             };
 
             Ticket ticket = new Ticket
@@ -92,11 +94,7 @@ namespace MS_Lab.services.tickets
                 ConfirmatorId = createTicketDTO.ConfirmatorId
             };
 
-            //var ticket = _mapper.Map<Ticket>(createTicketDTO);
-            //ticket.Event = foundEvent;
-
             var savedTicket = await _ticketRepository.CreateAsync(ticket);
-            //var dto = _mapper.Map<TicketDto>(savedTicket);
 
             string cacheKey = $"ticket:{savedTicket.Id}";
             var options = new DistributedCacheEntryOptions
@@ -129,9 +127,9 @@ namespace MS_Lab.services.tickets
                 if (updateTicketDTO.TicketOwner.Email != null) existingTicket.Owner.Email = updateTicketDTO.TicketOwner.Email;
             }
 
-            //_mapper.Map(updateTicketDTO, existingTicket);
             var updated = await _ticketRepository.UpdateAsync(existingTicket);
-            //var dto = _mapper.Map<TicketDto>(updated);
+            if (updated == null)
+                throw new BadRequestException("Ошибка обновления данных билета");
 
             string cacheKey = $"ticket:{updated.Id}";
             await _cache.RemoveAsync(cacheKey);

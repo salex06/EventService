@@ -95,7 +95,11 @@ namespace MS_Lab.services.events
             if (updateEvent.StartTimeUTC != null) existingEvent.StartTimeUTC = (DateTime)updateEvent.StartTimeUTC;
             if (updateEvent.TicketCount != null) existingEvent.TicketCount = (int)updateEvent.TicketCount;
 
-            return await _eventRepository.UpdateAsync(existingEvent);
+            var updated = await _eventRepository.UpdateAsync(existingEvent);
+            if (updated == null)
+                throw new BadRequestException($"Не удалось обновить данные события с id={eventId}");
+
+            return updated;
         }
 
         public async Task DeleteEventAsync(string id)

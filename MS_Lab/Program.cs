@@ -20,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddMvcCore()
         .AddApiExplorer();
-
+builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDb"));
 // Mongo
 builder.Services.AddSingleton<IMongoClient>(sp =>
 {
@@ -33,7 +33,7 @@ builder.Services.AddScoped<IMongoDatabase>(sp =>
     var client = sp.GetRequiredService<IMongoClient>();
     return client.GetDatabase(settings.DatabaseName);
 });
-builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("MongoDb"));
+
 builder.Services.AddScoped<MongoDbContext>();
 
 // Custom config
