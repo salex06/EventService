@@ -55,7 +55,7 @@ namespace GatewayTests
         }
 
         // Генерация просроченного токена
-        protected string GetExpiredToken()
+        protected static string GetExpiredToken()
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.UTF8.GetBytes(JwtSecret);
@@ -77,7 +77,7 @@ namespace GatewayTests
         }
 
         // Генерация токена с неверной подписью (используем другой ключ)
-        protected string GetInvalidSignatureToken()
+        protected static string GetInvalidSignatureToken()
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var fakeKey = Encoding.UTF8.GetBytes("WrongSecretKeyForJwtTokenGeneration");

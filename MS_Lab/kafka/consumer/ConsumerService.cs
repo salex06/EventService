@@ -13,7 +13,6 @@ namespace MS_Lab.kafka.consumer
     {
         private readonly ConsumerSettings _consumerSettings;
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly string _topic;
 
         private static readonly Counter receivedCounter = Metrics
 .CreateCounter("obj_serv_obj_received", "Received object confirmation count");
@@ -23,7 +22,6 @@ namespace MS_Lab.kafka.consumer
             IOptions<ConsumerSettings> settings)
         {
             _scopeFactory = scopeFactory;
-            _topic = settings.Value.Topic;
             _consumerSettings = settings.Value;
         }
 
@@ -31,7 +29,7 @@ namespace MS_Lab.kafka.consumer
         {
             await Task.Delay(3000, stoppingToken);
 
-            IConsumer<string, string> consumer = null;
+            IConsumer<string, string>? consumer = null;
             try
             {
                 var config = new ConsumerConfig
@@ -66,6 +64,7 @@ namespace MS_Lab.kafka.consumer
             }
             catch (Exception)
             {
+                // Log it
             }
             finally
             {

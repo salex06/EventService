@@ -13,7 +13,6 @@ namespace ClientService.kafka.consumer
     {
         private readonly ConsumerSettings _consumerSettings;
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly string _topic;
 
         private static readonly Counter receivedObjecsCounter = Metrics
 .CreateCounter("client_serv_obj_received", "Received objects count");
@@ -23,7 +22,6 @@ namespace ClientService.kafka.consumer
             IOptions<ConsumerSettings> settings)
         {
             _scopeFactory = scopeFactory;
-            _topic = settings.Value.Topic;
             _consumerSettings = settings.Value;
         }
 
@@ -31,7 +29,7 @@ namespace ClientService.kafka.consumer
         {
             await Task.Delay(3000, stoppingToken);
 
-            IConsumer<string, string> consumer = null;
+            IConsumer<string, string>? consumer = null;
             try
             {
                 var config = new ConsumerConfig
@@ -66,6 +64,7 @@ namespace ClientService.kafka.consumer
             }
             catch (Exception)
             {
+                // log it
             }
             finally
             {
@@ -96,18 +95,5 @@ namespace ClientService.kafka.consumer
                 //It'll be better to log it
             }
         }
-
-        //public override async Task StopAsync(CancellationToken cancellationToken)
-        //{
-        //    _consumer.Unsubscribe();
-
-        //    _consumer.Close();
-
-        //    await Task.Delay(5000, cancellationToken);
-
-        //    _consumer.Dispose();
-
-        //    await base.StopAsync(cancellationToken);
-        //}
     }
 }

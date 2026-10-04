@@ -7,7 +7,9 @@ namespace MS_Lab.filter
     public class ValidationFilter : IActionFilter
     {
         public void OnActionExecuted(ActionExecutedContext context)
-        { }
+        { 
+            // not used, must be defined to implement interface
+        }
 
         public void OnActionExecuting(ActionExecutingContext context)
         {

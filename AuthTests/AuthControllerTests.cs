@@ -17,6 +17,9 @@ namespace GatewayTests
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var json = await response.Content.ReadAsStringAsync();
             var result = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+
+            if (result == null) Assert.Fail(); 
+
             Assert.True(result.ContainsKey("token"));
         }
 
